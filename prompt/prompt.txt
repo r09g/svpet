@@ -38,14 +38,18 @@ Visual images and animations to show in different states of the pet defined in t
 <Chat>
 {{./llm_chat/llm_chat.txt}}
 
-The system prompt to use and relevant instructions are:
+The chat system prompt and instructions:
 {{./llm_chat/chat_sys_prompt.txt}}
+
+The save system prompt and instructions to use for condensing and summarizing chat history:
+{{./llm_chat/save_sys_prompt.txt}}
 </Chat>
 
 
 <Misc. Features>
 Fully offline and local application.
 Menubar tray icon: 
-- Functions: Add Pet, Connect LLM, Quit.
+- Functions: Add Pet, Remove Pet, Connect LLM, Quit.
 - Icon: Use frame 0 of sprite sheet {{$CWD}}/visualization/sprite_sheets/chicken_brown.png
+Saving: the application will make automatic saves of each pet's memory (outlined in mechanics section) every minute, on top of saves when interaction happens, such as user pets it. The saves will be stored locally in a file. When user opens the application, if save files are found, then the pets will be restored with memory.
 </Misc. Features>

@@ -1,6 +1,14 @@
 <Pet>
-Each pet will have its NAME and TYPE parameters. The NAME is a name that the user gives to a pet when first adding the pet. The TYPE is the type of animal the pet is. Allowable types are { chicken, cat, dog, duck }.
+Each pet will have its NAME and TYPE parameters. The NAME is a name that the user gives to a pet when first adding the pet. The TYPE is the type of animal the pet is. Allowable types are { chicken, cat, dog, duck }. The pet will have memory.
+
+Adding pets: When adding pets, user can select type of animal and enter a name for the animal.
+Removing pets: User can choose pet to remove, warn user before doing so as this cannot be undone. 
 </Pet>
+
+
+<Memory>
+The pet memory will include its name, type of animal, how many times in total the user petted it, the total time it has lived (since initialization/adding the pet), as well as a condensed summary of the chats and conversation between the user and the pet. Each pet will have separate/isolated memory.
+</Memory>
 
 
 <Time>
@@ -26,7 +34,7 @@ Each day or each time application is opened, the mood resets randomly to value i
 
 
 <Direction>
-This is the direction the pet is facing, can be one of { up, down, right, left }.
+This is the direction the pet is facing, can be one of { up, down, right, left }. At initialization pet will be facing down.
 </Direction>
 
 
