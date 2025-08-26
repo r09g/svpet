@@ -21,4 +21,3 @@ The following section describes the sprite sheets for each object type.
 <Chicken>{{./chicken_animations.txt}}</Chicken>
 
 <Emote>{{./emote_animations.txt}}</Emote>
-

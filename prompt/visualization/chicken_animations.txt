@@ -22,7 +22,6 @@ eat: [24,25,26,27]
 </Sprite Mapping>
 
 
-
 <Animation-State Mapping>
 STAND: 
     if previous animation was walk_${direction} or sit_${direction}, hold the first frame of walk_${direction} sprite mapping.
@@ -38,10 +37,4 @@ SIT:
 EAT:
     Play eat animation.
 
-
 </Animation-State Mapping>
-
-    
-
-
-

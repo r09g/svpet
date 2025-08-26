@@ -36,12 +36,11 @@ Visual images and animations to show in different states of the pet defined in t
 
 
 <Chat>
-The chatbox should use the art asset from {{$CWD}}/visualization/sprite_sheets/chatbox.png. The chat box consists of two sections. The upper section displays the pet's name and is fixed for a given conversation. The lower section displays the chat text. The text should stay within the boundaries of the chatbox. Double-clicking on the pet pixmap should bring up the chat box. The user should then be able to enter text into the box. The text should be white in color, left aligned, and wrap around when reaching the edge of the chatbox. If the length exceeds the height of chatbox, a vertical scroller should be available on the right edge of the chatbox. If user presses Enter key, this will be wrapped in a system prompt and sent to the LLM. Instructions for the system prompt wrapping is in {{$CWD}}/chat_prompt.txt. Once the LLM responds, the user input text in the lower chat box will be replaced with the LLM response.
+{{./llm_chat/llm_chat.txt}}
 
-The user should be able to connect an offline LLM model through clicking menubar tray icon's Connect LLM option. Then it should ask the user for the path to the model directory. The model should be one downloaded by the user from HuggingFace and loaded using Python.
-
-If no model is connected, the chat will fallback to responding with fixed text for all inputs. The fixed response will be onomatopoeia based on animal type.
-<Chat>
+The system prompt to use and relevant instructions are:
+{{./llm_chat/chat_sys_prompt.txt}}
+</Chat>
 
 
 

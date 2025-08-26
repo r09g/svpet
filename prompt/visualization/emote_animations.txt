@@ -18,7 +18,6 @@ speechless: [44,45,46,47]
 </Sprite Mapping>
 
 
-
 <Animation-State Mapping>
 Valid emotes: { confused, angry, important, love, sleepy, sad, happy, speechless }
 For all emotes, they will loop 3 times.
@@ -31,10 +30,4 @@ if mood <= 50:
 else:
     randomly pick emote from { confused, angry, important, sleepy, speechless }
 
-
 </Animation-State Mapping>
-
-    
-
-
-
