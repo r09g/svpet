@@ -1,0 +1,39 @@
+<Pet>
+Each pet will have its NAME and TYPE parameters. The NAME is a name that the user gives to a pet when first adding the pet. The TYPE is the type of animal the pet is. Allowable types are { chicken, cat, dog, duck }.
+</Pet>
+
+
+<Time>
+The pet will use system time.
+</Time>
+
+
+<Location>
+The location or position of the pet is defined by its location on the screen. The allowable positions of the pet should be all positions on the screen that will allow the pet pixmap to be fully displayed. 
+</Location>
+
+
+<Interaction>
+Interaction is defined as user clicking on the pet pixmap. The pet will respond with an emote when clicked on.
+User should be able to drag the pet pixmap to new locations. During drag the pet will stay in its current state and not change states.
+</Interaction>
+
+
+<Mood>
+The pet will have mood score. The mood score take integer values and in the range [0, 100]. New pets will start with mood 50. Each interaction with the pet will make mood increase by 1. Mood will decay automatically by 1 per hour.
+Each day or each time application is opened, the mood resets randomly to value in range [40, 60].
+</Mood>
+
+
+<Direction>
+This is the direction the pet is facing, can be one of { up, down, right, left }.
+</Direction>
+
+
+<Actions>
+The pet actions will follow a state machine. Different types of pets will have different allowable states/actions.
+
+<Chicken>{{./chicken_mechanics.txt}}</Chicken>
+
+</Actions>
+

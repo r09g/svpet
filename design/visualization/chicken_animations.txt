@@ -1,0 +1,47 @@
+Chicken sprite sheets can be found at:
+{{$CWD}}/sprite_sheets/chicken_*.png
+
+Sprite sheet has 7 rows 4 columns with each frame being 16x16 pixels.
+
+
+<Sprite Mapping>
+Format can be ${action}_${direction} if same action has animations for multiple directions, or ${action} if animation is available for just one direction.
+walk_up: [8,9,10,11]
+walk_right: [4,5,6,7]   
+walk_down: [0,1,2,3]    
+walk_left: [12,13,14,15]
+sit_down: [16,17] 
+sit_right: [18,19] 
+sit_up: [20,21] 
+sit_left: [22,23] 
+stand_down: [17,16] 
+stand_right: [19,18] 
+stand_up: [21,20] 
+stand_left: [23,22]
+eat: [24,25,26,27]
+</Sprite Mapping>
+
+
+
+<Animation-State Mapping>
+STAND: 
+    if previous animation was walk_${direction} or sit_${direction}, hold the first frame of walk_${direction} sprite mapping.
+    Else or if no previous animation: hold frame 0.
+
+WALK:
+    Based on walking direction, play walk_${direction}.
+
+SIT:
+    Randomly determine direction in { left, right, up, down }, then play sit_${direction} once, then hold last frame of sit_${direction} sprite mapping.
+    If next state is not SIT, play stand_${direction} once.
+
+EAT:
+    Play eat animation.
+
+
+</Animation-State Mapping>
+
+    
+
+
+

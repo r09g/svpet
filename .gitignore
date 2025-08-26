@@ -1,0 +1,35 @@
+*.png
+
+# IDE files
+.DS_Store
+Thumbs.db
+
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Logs
+*.log
+
+# Model files (large files)
+models/
+*.bin
+*.pt
+*.pth
+*.onnx
+
+# Backup files
+*.bak
+*.backup
+
+# OS generated files
+ehthumbs_vista.db
+Icon?
+*[Tt]humbs.db

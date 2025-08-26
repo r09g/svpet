@@ -1,0 +1,24 @@
+Animation is achieved through using sprite sheets.
+
+A sprite sheet is a grid of images. Each cell is one animation frame. The indexing follows a left-to-right, top-to-bottom order, with top-left being frame 0.
+
+Animation system works like this:
+1. Tile size defines frame width/height.
+2. Indexing picks frames in sequence (row = action, column = frame). It is possible for one row to contain multiple actions.
+3. Duration assigns display time per frame.
+4. Looping repeats sequence until stopped.
+5. State machine selects which row/sequence to play based on pet state (idle, walk, emote).
+6. Offsets/margins adjust spacing between tiles if present.
+
+Output: given a state, play its mapped row’s frames in order with durations, looping by default, then transition per rules.
+
+Before the animations for a given object finishes, the object will not accept new animation requests.
+
+Duration per frame: 100ms unless otherwise specified.
+
+The following section describes the sprite sheets for each object type.
+
+<Chicken>{{./chicken_animations.txt}}</Chicken>
+
+<Emote>{{./emote_animations.txt}}</Emote>
+

@@ -1,0 +1,40 @@
+Emote sprite sheet can be found at:
+{{$CWD}}/sprite_sheets/emote.png
+
+Sprite sheet has 16 rows 4 columns with each frame being 16x16 pixels.
+
+
+<Sprite Mapping>
+enter: [0,1,2,3]
+exit: [3,2,1,0]
+confused: [12,13,14,15]
+angry: [16,17,18,19]
+important: [20,21,22,23]
+love: [24,25,26,27]
+sleepy: [28,29,30,31]
+sad: [32,33,34,35]
+happy: [36,37,38,39]
+speechless: [44,45,46,47]
+</Sprite Mapping>
+
+
+
+<Animation-State Mapping>
+Valid emotes: { confused, angry, important, love, sleepy, sad, happy, speechless }
+For all emotes, they will loop 3 times.
+All emotes need to be wrapped by enter and exit emotes. For example, if selected emote was love, then animation sequence will be [enter, love, love, love, exit].
+
+if mood >= 75:
+    randomly pick emote from { happy, love, important, sleepy }
+if mood <= 50:
+    randomly pick emote from { angry, sad, confused, speechless, sleepy }
+else:
+    randomly pick emote from { confused, angry, important, sleepy, speechless }
+
+
+</Animation-State Mapping>
+
+    
+
+
+

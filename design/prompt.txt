@@ -1,0 +1,55 @@
+Desktop Pet Game Design Document
+
+<Project Description>
+This project is a desktop pet that uses Stardew Valley art and animation asset. The pet would be able to roam freely on desktop and user would be able to interact with it.
+</Project Description>
+
+
+<Coding Guidelines>
+Take a modular development approach and generate clear documentation. Git version control is already initialized. Make Git commits once each module is developed and tested.
+
+Framework:
+Electron js with Python modules.
+
+Program Interrupt:
+Add try-except to catch any Ctrl-C key presses, if caught, exit application properly.
+
+Shell Commands:
+For all shell commands, provide the command and expected results. User will run and report back observations.
+</Coding Guidelines>
+
+
+<Mechanics>
+The mechanics or controller of the pet system.
+
+{{./mechanics/mechanics.txt}}
+</Mechanics>
+
+
+<Visualization>
+Interface: At OS-level. No frame. Base layer background should be fully transparent (so other applications and windows remain fully visible). The pet pixmap should be visible and always-on-top (higher than all other applications). Mouse clicks on the pet pixmap should be captured by the application and emote should play, while everywhere else should be click-through.
+
+Visual images and animations to show in different states of the pet defined in the mechanics section.
+
+{{./visualization/animations.txt}}
+</Visualization>
+
+
+<Chat>
+The chatbox should use the art asset from {{$CWD}}/visualization/sprite_sheets/chatbox.png. The chat box consists of two sections. The upper section displays the pet's name and is fixed for a given conversation. The lower section displays the chat text. The text should stay within the boundaries of the chatbox. Double-clicking on the pet pixmap should bring up the chat box. The user should then be able to enter text into the box. The text should be white in color, left aligned, and wrap around when reaching the edge of the chatbox. If the length exceeds the height of chatbox, a vertical scroller should be available on the right edge of the chatbox. If user presses Enter key, this will be wrapped in a system prompt and sent to the LLM. Instructions for the system prompt wrapping is in {{$CWD}}/chat_prompt.txt. Once the LLM responds, the user input text in the lower chat box will be replaced with the LLM response.
+
+The user should be able to connect an offline LLM model through clicking menubar tray icon's Connect LLM option. Then it should ask the user for the path to the model directory. The model should be one downloaded by the user from HuggingFace and loaded using Python.
+
+If no model is connected, the chat will fallback to responding with fixed text for all inputs. The fixed response will be onomatopoeia based on animal type.
+<Chat>
+
+
+
+<Misc. Features>
+Fully offline and local application.
+Menubar tray icon: 
+- Functions: Add Pet, Connect LLM, Quit.
+- Icon: Use frame 0 of sprite sheet {{$CWD}}/visualization/sprite_sheets/chicken_brown.png
+</Misc. Features>
+
+

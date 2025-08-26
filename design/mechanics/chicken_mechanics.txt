@@ -1,0 +1,23 @@
+State machine for chicken.
+
+states: { STAND, WALK, SIT, EAT }
+init/default: STAND
+
+if STAND:
+    in STAND for random([5, 15]) seconds
+    randomly goto next state with probabilities: { STAND: 0.1, WALK: 0.4, SIT: 0.4, EAT: 0.2 }
+
+if WALK:
+    randomly determine location on screen and walk manhattan path with minimum turns to location.
+    goto STAND
+    
+if SIT:
+    in SIT for random([10, 30]) seconds
+    randomly goto next state with probabilities: { STAND: 0.4, WALK: 0.1, SIT: 0.4 }
+
+if EAT:
+    in EAT for random([3, 10]) seconds
+    randomly goto next state with probabilities: { STAND: 0.4, WALK: 0.3, SIT: 0.3 }
+
+
+
