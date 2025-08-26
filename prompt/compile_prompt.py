@@ -107,7 +107,7 @@ def compile_file(entry: Path, dry_run: bool = False):
             f.write(compiled)
 
 def main():
-    ap = argparse.ArgumentParser(description="Recursive {{...}} text compiler with {{$...}} swaps.")
+    ap = argparse.ArgumentParser(description="Prompt compiler.")
     ap.add_argument("file", type=Path, help="Entry text file to compile in place by default.")
     ap.add_argument("--dry-run", action="store_true", help="Print compiled output to stdout instead of writing.")
     ap.add_argument("--max-depth", type=int, default=200, help="Maximum include nesting depth.")

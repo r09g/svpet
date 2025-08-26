@@ -6,7 +6,7 @@ This project is a desktop pet that uses Stardew Valley art and animation asset. 
 
 
 <Coding Guidelines>
-Take a modular development approach and generate clear documentation. Git version control is already initialized. Make Git commits once each module is developed and tested.
+Take a modular development approach and generate clear documentation. Maintain clean directory structure. Put all source code in src folder. Git version control is already initialized. Make Git commits once each module is developed and tested.
 
 Framework:
 Electron js with Python modules.
@@ -43,12 +43,9 @@ The system prompt to use and relevant instructions are:
 </Chat>
 
 
-
 <Misc. Features>
 Fully offline and local application.
 Menubar tray icon: 
 - Functions: Add Pet, Connect LLM, Quit.
 - Icon: Use frame 0 of sprite sheet {{$CWD}}/visualization/sprite_sheets/chicken_brown.png
 </Misc. Features>
-
-
