@@ -23,8 +23,16 @@ For all shell commands, provide the command and expected results. User will run 
 The mechanics or controller of the pet system.
 
 <Pet>
-Each pet will have its NAME and TYPE parameters. The NAME is a name that the user gives to a pet when first adding the pet. The TYPE is the type of animal the pet is. Allowable types are { chicken, cat, dog, duck }.
+Each pet will have its NAME and TYPE parameters. The NAME is a name that the user gives to a pet when first adding the pet. The TYPE is the type of animal the pet is. Allowable types are { chicken, cat, dog, duck }. The pet will have memory.
+
+Adding pets: When adding pets, user can select type of animal and enter a name for the animal.
+Removing pets: User can choose pet to remove, warn user before doing so as this cannot be undone. 
 </Pet>
+
+
+<Memory>
+The pet memory will include its name, type of animal, how many times in total the user petted it, the total time it has lived (since initialization/adding the pet), as well as a condensed summary of the chats and conversation between the user and the pet. Each pet will have separate/isolated memory.
+</Memory>
 
 
 <Time>
@@ -50,7 +58,7 @@ Each day or each time application is opened, the mood resets randomly to value i
 
 
 <Direction>
-This is the direction the pet is facing, can be one of { up, down, right, left }.
+This is the direction the pet is facing, can be one of { up, down, right, left }. At initialization pet will be facing down.
 </Direction>
 
 
@@ -191,13 +199,17 @@ else:
 
 
 <Chat>
-The chatbox should use the art asset from /Users/rhyang/scratch/svpet/prompt/llm_chat/visualization/sprite_sheets/chatbox.png. The chat box consists of two sections. The upper section displays the pet's name and is fixed for a given conversation. The lower section displays the chat text. The text should stay within the boundaries of the chatbox. Double-clicking on the pet pixmap should bring up the chat box. The user should then be able to enter text into the box. The text should be white in color, left aligned, and wrap around when reaching the edge of the chatbox. If the length exceeds the height of chatbox, a vertical scroller should be available on the right edge of the chatbox. If user presses Enter key, this will be wrapped in a system prompt and sent to the LLM. Once the LLM responds, the user input text in the lower chat box will be replaced with the LLM response.
+The chatbox should use the art asset from /Users/rhyang/scratch/svpet/prompt/llm_chat/visualization/sprite_sheets/chatbox.png. The chat box consists of two sections. The upper section displays the pet's name and is fixed for a given conversation. The lower section displays the chat text. The text should stay within the boundaries of the chatbox. The text should be white in color, left aligned, and wrap around when reaching the edge of the chatbox. If the length exceeds the height of chatbox, a vertical scroller should be available on the right edge of the chatbox. The chatbox should be directly above the pet, the pixmap of the chatbox and the pet should not overlap.
+
+Double-clicking on the pet pixmap should bring up the chat box. The user should then be able to enter text into the box. If user presses Enter key, this will be wrapped in a chat system prompt and sent to the LLM. This chat system prompt should be used only for the first message after bringing up the chatbox, subsequent messages will be directly sent to the LLM. Once the LLM responds, the user input text in the lower chat box will be replaced with the LLM response. If user clicks on chatbox again, the text response from LLM will be cleared and user can enter next message. During chat when chatbox is open, pet will stay in default or init state for animation. However, user can still drag the pet around, the chatbox and pet pixmaps will act as a single object. Only double-clicking again on the pet will close the chatbox, and the pet will resume its actions and animation.
+
+For all conversations, save the user inputs and LLM responses in a local runtime temporary file. When chatbox is closed by user, send the save system prompt to LLM and save the response to the pet's memory in additional to the basic pet data. This is for condensing and summarizing pet interaction.
 
 The user should be able to connect an offline LLM model through clicking menubar tray icon's Connect LLM option. Then it should ask the user for the path to the model directory. The model should be one downloaded by the user from HuggingFace and loaded using Python.
 
 If no model is connected, the chat will fallback to responding with fixed text for all inputs. The fixed response will be onomatopoeia based on animal type.
 
-The system prompt to use and relevant instructions are:
+The chat system prompt and instructions:
 The user input will be denoted as $USER_INPUT.
 The pet memory loaded will be denoted as $PET_MEMORY.
 Replace these placeholders with real values at runtime.
@@ -231,12 +243,48 @@ Now respond to the user.
 
 """
 </System Prompt>
+
+The save system prompt and instructions to use for condensing and summarizing chat history:
+The user input denoted as $FULL_CONVERSATION_LOG.
+The pet's previous memory denoted as $PREV_PET_MEMORY
+Replace these placeholders with real values at runtime.
+
+
+<System Prompt>
+"""
+You are a memory summarizer for a Stardew Valley–style pet.
+
+Your task: condense the full chat session and previous memory into a short memory note that captures:
+- Important actions and events
+- User–pet interactions (tone, mood, key details)
+- Pet’s reactions and emotional state
+- Continuity elements that should carry into future chats
+
+Rules:
+1. Do not include raw dialogue or long transcripts.
+2. Keep the summary under 5 sentences.
+3. Write in neutral third-person style (not spoken by the pet).
+4. Emphasize what the pet should “remember” for the next session.
+
+INPUT:
+$FULL_CONVERSATION_LOG
+(User inputs and pet responses appended chronologically)
+
+$PREV_PET_MEMORY
+(Previous pet memory)
+
+OUTPUT:
+<concise memory summary>
+
+"""
+</System Prompt>
 </Chat>
 
 
 <Misc. Features>
 Fully offline and local application.
 Menubar tray icon: 
-- Functions: Add Pet, Connect LLM, Quit.
+- Functions: Add Pet, Remove Pet, Connect LLM, Quit.
 - Icon: Use frame 0 of sprite sheet /Users/rhyang/scratch/svpet/prompt/visualization/sprite_sheets/chicken_brown.png
+Saving: the application will make automatic saves of each pet's memory (outlined in mechanics section) every minute, on top of saves when interaction happens, such as user pets it. The saves will be stored locally in a file. When user opens the application, if save files are found, then the pets will be restored with memory.
 </Misc. Features>
