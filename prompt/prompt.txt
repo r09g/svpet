@@ -18,7 +18,7 @@ Program Interrupt:
 Add try-except to catch any Ctrl-C key presses, if caught, exit application properly.
 
 Shell Commands:
-For all shell commands, provide the command and expected results. User will run and report back observations.
+For all shell commands that call python, activate the venv first by "source venv/bin/activate". To install new packages, use "uv pip install" command.
 </Coding Guidelines>
 
 
