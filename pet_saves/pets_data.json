@@ -1,0 +1,21 @@
+{
+  "buno_chicken": {
+    "memory": {
+      "name": "buno",
+      "pet_type": "chicken",
+      "creation_time": 1756311510.90741,
+      "pet_count": 7,
+      "total_living_time": 2475.7659680843353,
+      "chat_summary": "",
+      "mood": 57,
+      "last_mood_reset": 0.0
+    },
+    "position": [
+      617,
+      588
+    ],
+    "direction": "left",
+    "current_state": "WALK",
+    "last_save_time": 1756314518.872401
+  }
+}

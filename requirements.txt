@@ -1,0 +1,5 @@
+PySide6>=6.0.0
+pillow>=10.0.0
+transformers>=4.0.0
+torch>=2.0.0
+accelerate>=0.20.0
