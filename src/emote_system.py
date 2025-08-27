@@ -40,14 +40,14 @@ class EmoteWidget(QWidget):
         # Basic emote animations
         self.animation_manager.create_animation("enter", [0, 1, 2, 3], loop=False)
         self.animation_manager.create_animation("exit", [3, 2, 1, 0], loop=False)
-        self.animation_manager.create_animation("confused", [12, 13, 14, 15], loop=True)
-        self.animation_manager.create_animation("angry", [16, 17, 18, 19], loop=True)
-        self.animation_manager.create_animation("important", [20, 21, 22, 23], loop=True)
-        self.animation_manager.create_animation("love", [24, 25, 26, 27], loop=True)
-        self.animation_manager.create_animation("sleepy", [28, 29, 30, 31], loop=True)
-        self.animation_manager.create_animation("sad", [32, 33, 34, 35], loop=True)
-        self.animation_manager.create_animation("happy", [36, 37, 38, 39], loop=True)
-        self.animation_manager.create_animation("speechless", [44, 45, 46, 47], loop=True)
+        self.animation_manager.create_animation("confused", [8, 9, 10, 11], loop=False)
+        self.animation_manager.create_animation("angry", [12, 13, 14, 15], loop=False)
+        self.animation_manager.create_animation("important", [16, 17, 18, 19], loop=False)
+        self.animation_manager.create_animation("love", [20, 21, 22, 23], loop=False)
+        self.animation_manager.create_animation("sleepy", [24, 25, 26, 27], loop=False)
+        self.animation_manager.create_animation("sad", [28, 29, 30, 31], loop=False)
+        self.animation_manager.create_animation("happy", [32, 33, 34, 35], loop=False)
+        self.animation_manager.create_animation("speechless", [40, 41, 42, 43], loop=False)
     
     def setup_widget(self):
         """Setup widget properties"""
@@ -106,9 +106,9 @@ class EmoteWidget(QWidget):
         # Create emote sequence: enter -> emote (3 loops) -> exit
         self.current_emote_sequence = [
             ("enter", False),  # (animation_name, is_loop)
-            (emote_type, True),
-            (emote_type, True), 
-            (emote_type, True),
+            (emote_type, False),
+            (emote_type, False), 
+            (emote_type, False),
             ("exit", False)
         ]
         

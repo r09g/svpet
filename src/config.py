@@ -14,8 +14,8 @@ to customize their desktop pet experience.
 ANIMATION_DURATIONS = {
     "walk": 0.25,        # Walk animation frame duration
     "sit": 0.3,         # Sit/Stand animation frame duration  
-    "eat": 0.15,        # Eat animation frame duration
-    "emote": 0.15,      # Emote animation frame duration
+    "eat": 0.2,        # Eat animation frame duration
+    "emote": 0.25,      # Emote animation frame duration
     "default": 0.1      # Default animation frame duration
 }
 
