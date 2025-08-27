@@ -3,6 +3,7 @@ Emote sprite sheet can be found at:
 
 Sprite sheet has 16 rows 4 columns with each frame being 16x16 pixels.
 
+The emote pixmap should be directly above the pet pixmap, and not overlapping with the pet pixmap.
 
 <Sprite Mapping>
 enter: [0,1,2,3]

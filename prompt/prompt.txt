@@ -8,6 +8,9 @@ This project is a desktop pet that uses Stardew Valley art and animation asset. 
 <Coding Guidelines>
 Take a modular development approach and generate clear documentation. Maintain clean directory structure. Put all source code in src folder. Git version control is already initialized. Make Git commits once each module is developed and tested.
 
+Visualization:
+Should be parameterized as much as possible for compatibility with different screen sizes, environments, and zoom levels.
+
 Framework:
 Electron js with Python modules.
 
@@ -29,6 +32,8 @@ The mechanics or controller of the pet system.
 <Visualization>
 Interface: At OS-level. No frame. Base layer background should be fully transparent (so other applications and windows remain fully visible). The pet pixmap should be visible and always-on-top (higher than all other applications). Mouse clicks on the pet pixmap should be captured by the application and emote should play, while everywhere else should be click-through.
 
+When Zoom-In and Zoom-Out are selected, the pixmap of all objects in the application should be scaled by a fixed factor of 2.
+
 Visual images and animations to show in different states of the pet defined in the mechanics section.
 
 {{./visualization/animations.txt}}
@@ -49,7 +54,7 @@ The save system prompt and instructions to use for condensing and summarizing ch
 <Misc. Features>
 Fully offline and local application.
 Menubar tray icon: 
-- Functions: Add Pet, Remove Pet, Connect LLM, Quit.
+- Functions: Add Pet, Remove Pet, Zoom-In, Zoom-Out, Connect LLM, Quit.
 - Icon: Use frame 0 of sprite sheet {{$CWD}}/visualization/sprite_sheets/chicken_brown.png
 Saving: the application will make automatic saves of each pet's memory (outlined in mechanics section) every minute, on top of saves when interaction happens, such as user pets it. The saves will be stored locally in a file. When user opens the application, if save files are found, then the pets will be restored with memory.
 </Misc. Features>
