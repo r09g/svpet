@@ -2,7 +2,7 @@ import json
 import os
 import time
 from typing import List, Dict, Optional
-from src.pet_data import Pet, PetMemory, PetType, Direction, ChickenState
+from pet_data import Pet, PetMemory, PetType, Direction, ChickenState
 
 class SaveSystem:
     def __init__(self, save_directory: str = "pet_saves"):

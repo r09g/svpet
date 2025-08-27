@@ -2,8 +2,12 @@ import random
 import time
 import math
 from typing import Tuple, Optional
-from src.pet_data import Pet, ChickenState, Direction
-from src.animation_system import AnimationManager
+from pet_data import Pet, ChickenState, Direction
+from animation_system import AnimationManager
+from config import (
+    ANIMATION_DURATIONS, STATE_DURATIONS, STATE_TRANSITIONS, 
+    MOVEMENT_SPEED, STATUS_LOG_INTERVAL, DEBUG_SETTINGS
+)
 
 class ChickenStateMachine:
     def __init__(self, pet: Pet, animation_manager: AnimationManager):
@@ -14,58 +18,61 @@ class ChickenStateMachine:
         self.pet_width = 32  # Scaled sprite size
         self.pet_height = 32
         
-        # State transition probabilities
+        # Load state transition probabilities from config
         self.state_transitions = {
             ChickenState.STAND: {
-                ChickenState.STAND: 0.1,
-                ChickenState.WALK: 0.4, 
-                ChickenState.SIT: 0.4,
-                ChickenState.EAT: 0.1
+                ChickenState.STAND: STATE_TRANSITIONS["STAND"]["STAND"],
+                ChickenState.WALK: STATE_TRANSITIONS["STAND"]["WALK"], 
+                ChickenState.SIT: STATE_TRANSITIONS["STAND"]["SIT"],
+                ChickenState.EAT: STATE_TRANSITIONS["STAND"]["EAT"]
             },
             ChickenState.SIT: {
-                ChickenState.STAND: 0.4,
-                ChickenState.WALK: 0.1,
-                ChickenState.SIT: 0.5
+                ChickenState.STAND: STATE_TRANSITIONS["SIT"]["STAND"],
+                ChickenState.WALK: STATE_TRANSITIONS["SIT"]["WALK"],
+                ChickenState.SIT: STATE_TRANSITIONS["SIT"]["SIT"]
             },
             ChickenState.EAT: {
-                ChickenState.STAND: 0.4,
-                ChickenState.WALK: 0.3,
-                ChickenState.SIT: 0.3
+                ChickenState.STAND: STATE_TRANSITIONS["EAT"]["STAND"],
+                ChickenState.WALK: STATE_TRANSITIONS["EAT"]["WALK"],
+                ChickenState.SIT: STATE_TRANSITIONS["EAT"]["SIT"]
             }
         }
         
-        # State duration ranges (in seconds)
+        # Load state duration ranges from config
         self.state_durations = {
-            ChickenState.STAND: (5, 15),
-            ChickenState.SIT: (10, 30), 
-            ChickenState.EAT: (3, 10),
-            ChickenState.WALK: (0, 0)  # Variable based on distance
+            ChickenState.STAND: STATE_DURATIONS["STAND"],
+            ChickenState.SIT: STATE_DURATIONS["SIT"], 
+            ChickenState.EAT: STATE_DURATIONS["EAT"],
+            ChickenState.WALK: STATE_DURATIONS["WALK"]
         }
         
         self._init_animations()
     
     def _init_animations(self):
-        """Initialize chicken animations"""
+        """Initialize chicken animations with durations from config"""
         # Walk animations
-        self.animation_manager.create_animation("walk_up", [8, 9, 10, 11], loop=True)
-        self.animation_manager.create_animation("walk_right", [4, 5, 6, 7], loop=True) 
-        self.animation_manager.create_animation("walk_down", [0, 1, 2, 3], loop=True)
-        self.animation_manager.create_animation("walk_left", [12, 13, 14, 15], loop=True)
+        walk_duration = ANIMATION_DURATIONS["walk"]
+        self.animation_manager.create_animation("walk_up", [8, 9, 10, 11], duration_per_frame=walk_duration, loop=True)
+        self.animation_manager.create_animation("walk_right", [4, 5, 6, 7], duration_per_frame=walk_duration, loop=True) 
+        self.animation_manager.create_animation("walk_down", [0, 1, 2, 3], duration_per_frame=walk_duration, loop=True)
+        self.animation_manager.create_animation("walk_left", [12, 13, 14, 15], duration_per_frame=walk_duration, loop=True)
         
         # Sit animations
-        self.animation_manager.create_animation("sit_down", [16, 17], loop=False)
-        self.animation_manager.create_animation("sit_right", [18, 19], loop=False)
-        self.animation_manager.create_animation("sit_up", [20, 21], loop=False)
-        self.animation_manager.create_animation("sit_left", [22, 23], loop=False)
+        sit_duration = ANIMATION_DURATIONS["sit"]
+        self.animation_manager.create_animation("sit_down", [16, 17], duration_per_frame=sit_duration, loop=False)
+        self.animation_manager.create_animation("sit_right", [18, 19], duration_per_frame=sit_duration, loop=False)
+        self.animation_manager.create_animation("sit_up", [20, 21], duration_per_frame=sit_duration, loop=False)
+        self.animation_manager.create_animation("sit_left", [22, 23], duration_per_frame=sit_duration, loop=False)
         
         # Stand animations (reverse of sit)
-        self.animation_manager.create_animation("stand_down", [17, 16], loop=False)
-        self.animation_manager.create_animation("stand_right", [19, 18], loop=False)
-        self.animation_manager.create_animation("stand_up", [21, 20], loop=False)
-        self.animation_manager.create_animation("stand_left", [23, 22], loop=False)
+        self.animation_manager.create_animation("stand_down", [17, 16], duration_per_frame=sit_duration, loop=False)
+        self.animation_manager.create_animation("stand_right", [19, 18], duration_per_frame=sit_duration, loop=False)
+        self.animation_manager.create_animation("stand_up", [21, 20], duration_per_frame=sit_duration, loop=False)
+        self.animation_manager.create_animation("stand_left", [23, 22], duration_per_frame=sit_duration, loop=False)
         
         # Eat animation
-        self.animation_manager.create_animation("eat", [24, 25, 26, 27], loop=True)
+        eat_duration = ANIMATION_DURATIONS["eat"]
+        self.animation_manager.create_animation("eat", [24, 25, 26, 27], duration_per_frame=eat_duration, loop=True)
     
     def update_screen_size(self, width: int, height: int):
         """Update screen dimensions for boundary checks"""
@@ -154,7 +161,8 @@ class ChickenStateMachine:
         self.pet.current_state = new_state
         self.pet.state_start_time = time.time()
         
-        print(f"{self.pet.memory.name}: {old_state.value} -> {new_state.value}")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print(f"{self.pet.memory.name}: {old_state.value} -> {new_state.value}")
         
         # Log state-specific information
         self._log_state_details(new_state)
@@ -201,9 +209,9 @@ class ChickenStateMachine:
         # Update direction based on movement
         self.pet.direction = self.get_direction_to_target(current_pos, target_pos)
         
-        # Move one pixel towards target
-        move_x = 1 if dx > 0 else -1 if dx < 0 else 0
-        move_y = 1 if dy > 0 else -1 if dy < 0 else 0
+        # Move towards target at configured speed
+        move_x = MOVEMENT_SPEED if dx > 0 else -MOVEMENT_SPEED if dx < 0 else 0
+        move_y = MOVEMENT_SPEED if dy > 0 else -MOVEMENT_SPEED if dy < 0 else 0
         
         new_x = current_pos[0] + move_x
         new_y = current_pos[1] + move_y
@@ -241,7 +249,7 @@ class ChickenStateMachine:
         current_time = time.time()
         if not hasattr(self, '_last_status_log'):
             self._last_status_log = current_time
-        elif current_time - self._last_status_log >= 5.0:
+        elif current_time - self._last_status_log >= STATUS_LOG_INTERVAL:
             self._log_periodic_status()
             self._last_status_log = current_time
         
@@ -256,6 +264,9 @@ class ChickenStateMachine:
     
     def _log_periodic_status(self):
         """Log periodic status update"""
+        if not DEBUG_SETTINGS["enable_periodic_status"]:
+            return
+            
         elapsed = time.time() - self.pet.state_start_time
         state = self.pet.current_state.value
         pos = self.pet.position

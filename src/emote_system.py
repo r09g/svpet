@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel
 from PySide6.QtCore import Qt, QTimer, QPoint
 from PySide6.QtGui import QPixmap, QPainter
-from src.animation_system import AnimationManager
+from animation_system import AnimationManager
 import random
 
 class EmoteWidget(QWidget):
@@ -66,6 +66,19 @@ class EmoteWidget(QWidget):
         # Initially hidden
         self.hide()
     
+    def ensure_always_on_top(self):
+        """Ensure emote widget stays on top"""
+        self.raise_()
+        self.activateWindow()
+        # Re-apply window flags to enforce always-on-top
+        self.setWindowFlags(
+            Qt.FramelessWindowHint |
+            Qt.WindowStaysOnTopHint |
+            Qt.Tool |
+            Qt.WindowDoesNotAcceptFocus
+        )
+        self.show()
+    
     def update_position(self):
         """Update emote position relative to parent pet widget"""
         if self.parent_widget:
@@ -102,6 +115,8 @@ class EmoteWidget(QWidget):
         # Position emote widget
         self.update_position()
         self.show()
+        # Ensure emote stays on top
+        self.ensure_always_on_top()
         
         # Start animation sequence
         self.play_next_in_sequence()

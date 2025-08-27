@@ -2,7 +2,7 @@ import os
 from PySide6.QtWidgets import QSystemTrayIcon, QMenu, QApplication, QFileDialog, QMessageBox, QDialog, QVBoxLayout, QLabel, QPushButton, QLineEdit, QComboBox
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QIcon, QPixmap
-from src.pet_data import PetType, PetMemory, Pet
+from pet_data import PetType, PetMemory, Pet
 import time
 
 class AddPetDialog(QDialog):
@@ -109,6 +109,7 @@ class SystemTrayMenu(QSystemTrayIcon):
     zoom_in_requested = Signal()
     zoom_out_requested = Signal()
     connect_llm_requested = Signal(str)  # model_path
+    animation_tester_requested = Signal()
     quit_requested = Signal()
     
     def __init__(self, icon_path: str):
@@ -163,6 +164,12 @@ class SystemTrayMenu(QSystemTrayIcon):
         # Connect LLM
         connect_llm_action = menu.addAction("Connect LLM")
         connect_llm_action.triggered.connect(self.show_connect_llm_dialog)
+        
+        menu.addSeparator()
+        
+        # Animation Tester
+        animation_tester_action = menu.addAction("Animation Tester")
+        animation_tester_action.triggered.connect(self.open_animation_tester)
         
         menu.addSeparator()
         
@@ -240,3 +247,7 @@ class SystemTrayMenu(QSystemTrayIcon):
         
         if reply == QMessageBox.Yes:
             self.quit_requested.emit()
+    
+    def open_animation_tester(self):
+        """Open the animation tester window"""
+        self.animation_tester_requested.emit()

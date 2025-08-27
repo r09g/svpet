@@ -5,12 +5,17 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtCore import QTimer, QObject, Signal
 from PySide6.QtGui import QScreen
 
-from src.pet_data import Pet, PetMemory, PetType, ChickenState, Direction
-from src.pet_widget import PetWidget
-from src.emote_system import EmoteManager
-from src.chat_system import ChatWidget
-from src.system_tray import SystemTrayMenu
-from src.save_system import SaveSystem
+from pet_data import Pet, PetMemory, PetType, ChickenState, Direction
+from pet_widget import PetWidget
+from emote_system import EmoteManager
+from chat_system import ChatWidget
+from system_tray import SystemTrayMenu
+from save_system import SaveSystem
+from animation_tester import AnimationTester
+from config import (
+    DEFAULT_SCALE_FACTOR, AUTO_SAVE_INTERVAL, get_full_sprite_path, 
+    get_emote_sprite_path, get_chatbox_sprite_path, DEBUG_SETTINGS
+)
 
 class DesktopPetApp(QObject):
     def __init__(self):
@@ -24,19 +29,19 @@ class DesktopPetApp(QObject):
         self.save_system = SaveSystem()
         
         # Application state
-        self.scale_factor = 4  # Default scale (16x16 -> 64x64)
+        self.scale_factor = DEFAULT_SCALE_FACTOR
         self.llm_model_path: Optional[str] = None
+        self.animation_tester_window: Optional[AnimationTester] = None
         
-        # Asset paths
-        self.assets_base = "prompts/base_prompt/visualization/sprite_sheets"
+        # Asset paths from config
         self.sprite_paths = {
-            'chicken': os.path.join(self.assets_base, "chicken_brown.png"),
-            'cat': os.path.join(self.assets_base, "cat_grey.png"),
-            'dog': os.path.join(self.assets_base, "dog_brown.png"),
-            'duck': os.path.join(self.assets_base, "duck.png")
+            'chicken': get_full_sprite_path('chicken'),
+            'cat': get_full_sprite_path('cat'),
+            'dog': get_full_sprite_path('dog'),
+            'duck': get_full_sprite_path('duck')
         }
-        self.emote_sprite_path = os.path.join(self.assets_base, "emote.png")
-        self.chatbox_sprite_path = os.path.join(self.assets_base, "chatbox.png")
+        self.emote_sprite_path = get_emote_sprite_path()
+        self.chatbox_sprite_path = get_chatbox_sprite_path()
         
         # Verify required assets exist
         self.verify_assets_exist()
@@ -49,7 +54,7 @@ class DesktopPetApp(QObject):
         # Timers
         self.auto_save_timer = QTimer()
         self.auto_save_timer.timeout.connect(self.auto_save_pets)
-        self.auto_save_timer.start(60000)  # Auto-save every minute
+        self.auto_save_timer.start(AUTO_SAVE_INTERVAL)  # Auto-save from config
         
         # Screen size tracking
         self.update_screen_size()
@@ -57,8 +62,9 @@ class DesktopPetApp(QObject):
         # Load existing pets
         self.load_pets_from_save()
         
-        print("Desktop Pet application started!")
-        print(f"Loaded {len(self.pets)} pets from save file")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print("Desktop Pet application started!")
+            print(f"Loaded {len(self.pets)} pets from save file")
     
     def verify_assets_exist(self):
         """Verify that all required Stardew Valley sprite sheets exist"""
@@ -82,12 +88,13 @@ class DesktopPetApp(QObject):
                 error_msg += f"• {sprite_name}: {sprite_path}\n"
             error_msg += "\nPlease add the Stardew Valley sprite sheets to continue."
             
-            print("❌ " + error_msg)
+            print("Error: " + error_msg)
             from PySide6.QtWidgets import QMessageBox
             QMessageBox.critical(None, "Missing Sprite Sheets", error_msg)
             raise FileNotFoundError(f"Required sprite sheets missing: {[path for path, _ in missing_sprites]}")
         
-        print("✅ All required Stardew Valley sprite sheets found")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print("All required Stardew Valley sprite sheets found")
     
     
     def setup_tray_connections(self):
@@ -97,6 +104,7 @@ class DesktopPetApp(QObject):
         self.system_tray.zoom_in_requested.connect(self.zoom_in)
         self.system_tray.zoom_out_requested.connect(self.zoom_out)
         self.system_tray.connect_llm_requested.connect(self.connect_llm_model)
+        self.system_tray.animation_tester_requested.connect(self.open_animation_tester)
         self.system_tray.quit_requested.connect(self.quit_application)
     
     def update_screen_size(self):
@@ -121,7 +129,8 @@ class DesktopPetApp(QObject):
             
             self.update_tray_pets_list()
         except Exception as e:
-            print(f"Error loading pets from save: {e}")
+            if DEBUG_SETTINGS["enable_state_logging"]:
+                print(f"Error loading pets from save: {e}")
     
     def create_pet_widget(self, pet: Pet):
         """Create widget for a pet"""
@@ -136,14 +145,17 @@ class DesktopPetApp(QObject):
         pet_widget.pet_double_clicked.connect(lambda: self.handle_pet_double_clicked(pet))
         pet_widget.update_screen_size(self.screen_width, self.screen_height)
         pet_widget.show()
+        # Ensure the widget is always on top from creation
+        pet_widget.ensure_always_on_top()
         
         self.pet_widgets[pet_id] = pet_widget
         
         # Create emote widget for this pet
         emote_widget = self.emote_manager.create_emote_widget(pet_id, self.emote_sprite_path, pet_widget)
         
-        print(f"Created {pet.memory.name} the {pet.memory.pet_type.value}")
-        print(f"  Position: ({pet.position[0]}, {pet.position[1]}), State: {pet.current_state.value}, Mood: {pet.memory.mood}")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print(f"Created {pet.memory.name} the {pet.memory.pet_type.value}")
+            print(f"  Position: ({pet.position[0]}, {pet.position[1]}), State: {pet.current_state.value}, Mood: {pet.memory.mood}")
     
     def get_pet_id(self, pet: Pet) -> str:
         """Get unique ID for a pet"""
@@ -159,8 +171,9 @@ class DesktopPetApp(QObject):
         # Show emote
         self.emote_manager.show_emote(pet_id, emote_type)
         
-        print(f"{pet.memory.name} petted, mood {pet.memory.mood} -> {pet.memory.mood + 1}, emote: {emote_type}")
-        print(f"  Total pets: {pet.memory.pet_count + 1}")
+        if DEBUG_SETTINGS["enable_interaction_logging"]:
+            print(f"{pet.memory.name} petted, mood {pet.memory.mood} -> {pet.memory.mood + 1}, emote: {emote_type}")
+            print(f"  Total pets: {pet.memory.pet_count + 1}")
     
     def handle_pet_double_clicked(self, pet: Pet):
         """Handle pet double-click (open chat)"""
@@ -177,16 +190,20 @@ class DesktopPetApp(QObject):
         chat_widget.chat_closed.connect(lambda: self.handle_chat_closed(pet_id))
         chat_widget.update_position()
         chat_widget.show()
+        # Ensure chat widget is always on top
+        chat_widget.ensure_always_on_top()
         
         self.chat_widgets[pet_id] = chat_widget
         
-        print(f"Chat opened with {pet.memory.name} (mood: {pet.memory.mood})")
+        if DEBUG_SETTINGS["enable_interaction_logging"]:
+            print(f"Chat opened with {pet.memory.name} (mood: {pet.memory.mood})")
     
     def handle_chat_closed(self, pet_id: str):
         """Handle chat widget closed"""
         if pet_id in self.chat_widgets:
             del self.chat_widgets[pet_id]
-        print("Chat closed")
+        if DEBUG_SETTINGS["enable_interaction_logging"]:
+            print("Chat closed")
     
     def add_pet(self, pet_type: PetType, name: str):
         """Add a new pet"""
@@ -221,7 +238,8 @@ class DesktopPetApp(QObject):
         # Update tray menu
         self.update_tray_pets_list()
         
-        print(f"Added new pet: {name} the {pet_type.value}")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print(f"Added new pet: {name} the {pet_type.value}")
         
         # Show welcome message
         QMessageBox.information(
@@ -257,21 +275,24 @@ class DesktopPetApp(QObject):
         # Update tray menu
         self.update_tray_pets_list()
         
-        print(f"Removed pet: {pet.memory.name} the {pet.memory.pet_type.value}")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print(f"Removed pet: {pet.memory.name} the {pet.memory.pet_type.value}")
     
     def zoom_in(self):
         """Zoom in all pets by 2x"""
         old_scale = self.scale_factor
         self.scale_factor *= 2
         self.apply_zoom_to_pets()
-        print(f"Zoomed in from {old_scale}x to {self.scale_factor}x")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print(f"Zoomed in from {old_scale}x to {self.scale_factor}x")
     
     def zoom_out(self):
         """Zoom out all pets by 2x"""
         old_scale = self.scale_factor
         self.scale_factor /= 2
         self.apply_zoom_to_pets()
-        print(f"Zoomed out from {old_scale}x to {self.scale_factor}x")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print(f"Zoomed out from {old_scale}x to {self.scale_factor}x")
     
     def apply_zoom_to_pets(self):
         """Apply current zoom factor to all pet widgets"""
@@ -283,7 +304,8 @@ class DesktopPetApp(QObject):
     def connect_llm_model(self, model_path: str):
         """Connect LLM model"""
         self.llm_model_path = model_path
-        print(f"Connected LLM model: {model_path}")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print(f"Connected LLM model: {model_path}")
         
         # Test model loading
         try:
@@ -311,14 +333,30 @@ class DesktopPetApp(QObject):
         """Update the pets list in system tray menu"""
         self.system_tray.update_pets_list(self.pets)
     
+    def open_animation_tester(self):
+        """Open the animation tester window"""
+        if self.animation_tester_window is None or not self.animation_tester_window.isVisible():
+            self.animation_tester_window = AnimationTester()
+            self.animation_tester_window.show()
+            if DEBUG_SETTINGS["enable_state_logging"]:
+                print("Animation tester opened")
+        else:
+            # Bring existing window to front
+            self.animation_tester_window.raise_()
+            self.animation_tester_window.activateWindow()
+            if DEBUG_SETTINGS["enable_state_logging"]:
+                print("Animation tester brought to front")
+    
     def quit_application(self):
         """Quit the application"""
-        print("Shutting down desktop pet application...")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print("Shutting down desktop pet application...")
         
         # Save all pets before quitting
         if self.pets:
             self.save_system.save_all_pets(self.pets)
-            print(f"Saved {len(self.pets)} pets")
+            if DEBUG_SETTINGS["enable_state_logging"]:
+                print(f"Saved {len(self.pets)} pets")
         
         # Close all widgets
         for chat_widget in self.chat_widgets.values():
@@ -326,6 +364,10 @@ class DesktopPetApp(QObject):
         
         for pet_widget in self.pet_widgets.values():
             pet_widget.close()
+        
+        # Close animation tester window if open
+        if self.animation_tester_window and self.animation_tester_window.isVisible():
+            self.animation_tester_window.close()
         
         # Quit application
         QApplication.quit()

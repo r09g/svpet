@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QWidget, QLabel
 from PySide6.QtCore import Qt, QTimer, QPoint, Signal
 from PySide6.QtGui import QPixmap, QPainter, QMouseEvent
-from src.pet_data import Pet
-from src.animation_system import AnimationManager
-from src.pet_state_machine import ChickenStateMachine
+from pet_data import Pet
+from animation_system import AnimationManager
+from pet_state_machine import ChickenStateMachine
 import random
 
 class PetWidget(QWidget):
@@ -61,6 +61,19 @@ class PetWidget(QWidget):
         
         # Make background transparent and click-through for non-pet areas
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+    
+    def ensure_always_on_top(self):
+        """Ensure widget stays on top by raising and activating"""
+        self.raise_()
+        self.activateWindow()
+        # Re-apply window flags to enforce always-on-top
+        self.setWindowFlags(
+            Qt.FramelessWindowHint |
+            Qt.WindowStaysOnTopHint |
+            Qt.Tool |
+            Qt.WindowDoesNotAcceptFocus
+        )
+        self.show()
     
     def update_pet(self):
         """Update pet state and animation"""

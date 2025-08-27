@@ -7,7 +7,7 @@ from typing import Optional, List, Dict
 from PySide6.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QLabel, QScrollArea
 from PySide6.QtCore import Qt, QTimer, Signal, QThread
 from PySide6.QtGui import QPixmap, QPainter, QFont, QColor, QPen
-from src.pet_data import Pet, PetType
+from pet_data import Pet, PetType
 
 class LLMWorker(QThread):
     response_ready = Signal(str)
@@ -117,6 +117,19 @@ class ChatWidget(QWidget):
         
         # Force window to stay on top on macOS
         self.setAttribute(Qt.WA_MacAlwaysShowToolWindow, True)
+    
+    def ensure_always_on_top(self):
+        """Ensure chat widget stays on top"""
+        self.raise_()
+        self.activateWindow()
+        # Re-apply window flags to enforce always-on-top
+        self.setWindowFlags(
+            Qt.FramelessWindowHint |
+            Qt.WindowStaysOnTopHint |
+            Qt.Tool |
+            Qt.WindowDoesNotAcceptFocus
+        )
+        self.show()
     
     def setup_ui(self):
         """Setup UI elements"""
