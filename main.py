@@ -1,28 +1,12 @@
 #!/usr/bin/env python3
 
 import sys
-import signal
-from PySide6.QtWidgets import QApplication
-from src.desktop_pet import DesktopPetApp
+import os
 
-def signal_handler(signum, frame):
-    """Handle Ctrl+C gracefully"""
-    print("\nExiting application...")
-    QApplication.quit()
+# Add src directory to Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-def main():
-    signal.signal(signal.SIGINT, signal_handler)
-    
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(False)  # Keep running even when windows are closed
-    
-    pet_app = DesktopPetApp()
-    
-    try:
-        sys.exit(app.exec())
-    except KeyboardInterrupt:
-        print("\nApplication interrupted by user")
-        sys.exit(0)
+from src.main import main
 
 if __name__ == "__main__":
     main()
