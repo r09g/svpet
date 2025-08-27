@@ -1,0 +1,17 @@
+Module 9 — Mood and Time
+
+Goal: Mood update, decay, daily reset.
+
+Prompt to coder
+Implement src/pet/mood.py:
+	•	Start mood=50 for new pets.
+	•	On each interaction +1, clamp [0,100].
+	•	Decay −1 per hour via QTimer aligned to system clock.
+	•	On app start or new day boundary: reset to random [40,60].
+	•	Expose signals moodChanged(int).
+
+Files:
+	•	src/pet/mood.py
+Tests:
+	•	Force timers with mocked clock. Clamp works.
+Commit: feat(pet): mood engine with decay and daily reset

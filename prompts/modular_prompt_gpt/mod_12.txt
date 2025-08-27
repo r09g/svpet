@@ -1,0 +1,16 @@
+Module 12 — Chatbox UI
+
+Goal: Skinned chatbox above pet with scroll, input, and replace-on-response.
+
+Prompt to coder
+Implement src/chat/chatbox.py:
+	•	Paint chatbox using provided sprite asset. Two sections: header (pet name) and body (scrollable text area).
+	•	Open on double-click, close on double-click.
+	•	Enter key sends text to Chat engine (Module 13). After response, replace body with response. Clicking body clears and focuses input.
+	•	Chatbox and pet move together on drag.
+
+Files:
+	•	src/chat/chatbox.py
+Tests:
+	•	Text wraps, scroll works, no overlap with pet pixmap.
+Commit: feat(chat): chatbox UI with sprite skin

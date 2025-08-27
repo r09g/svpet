@@ -1,0 +1,17 @@
+Module 14 — Asset Pipeline and Configuration
+
+Goal: Parameterize asset paths and chicken sheet geometry.
+
+Prompt to coder
+Implement src/core/assets.py:
+	•	Resolve:
+	•	Chicken sheets at /Users/rhyang/scratch/svpet/prompt/visualization/sprite_sheets/chicken_*.png
+	•	Emote sheet at /Users/rhyang/scratch/svpet/prompt/visualization/sprite_sheets/emote.png
+	•	Chatbox at /Users/rhyang/scratch/svpet/prompt/llm_chat/visualization/sprite_sheets/chatbox.png
+	•	Chicken sheet geometry: 7 rows × 4 cols, 16×16 tiles. Provide helper load_chicken_sheet(name:str)->SpriteSheet.
+
+Files:
+	•	src/core/assets.py
+Tests:
+	•	Paths resolve. Missing files raise clear errors.
+Commit: feat(core): asset resolver and chicken geometry

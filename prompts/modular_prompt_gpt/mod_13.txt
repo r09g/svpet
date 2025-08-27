@@ -1,0 +1,18 @@
+Module 13 — LLM Connector + Fallback
+
+Goal: Offline LLM loader path, prompt templating, fallback onomatopoeia.
+
+Prompt to coder
+Implement src/chat/engine.py:
+	•	LLMClient: interface with available()->bool, respond(system:str, user:str)->str.
+	•	Start with placeholder local loader hook load_model(dir_path); wire later to HF model via Python. Non-blocking: run in worker thread.
+	•	System prompts per spec with $USER_INPUT and $PET_MEMORY.
+	•	Fallback table by animal: cat→“meow”, dog→“woof”, chicken→“cluck”, duck→“quack”.
+	•	Session log: append {role,user/assistant,ts,text} to temp file during chat.
+	•	On chatbox close, call summarize(full_log, prev_memory) using save-system prompt and write new summary to persistence.
+
+Files:
+	•	src/chat/engine.py
+Tests:
+	•	With no model, returns onomatopoeia. Summarizer called on close.
+Commit: feat(chat): LLM connector, prompts, and fallback

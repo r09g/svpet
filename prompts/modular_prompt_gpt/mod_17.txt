@@ -1,0 +1,15 @@
+Module 17 — Wiring and Composition
+
+Goal: Tie everything together.
+
+Prompt to coder
+Update src/app.py:
+	•	Instantiate Tray → Manager → for each pet create Window + Animator + Controller + Chatbox + Emote engine.
+	•	Connect signals: tray zoom → zoom service; click → emote; double-click → chatbox; mood → emote selection; persistence autosave timer.
+	•	Load saved pets on startup. Restore position, mood, memory. If none, prompt Add Pet.
+
+Files:
+	•	src/app.py (update)
+Tests:
+	•	Cold start restores last session. Interaction saves update memory file.
+Commit: feat(app): compose services and restore session

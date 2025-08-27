@@ -1,0 +1,18 @@
+Module 3 — Pet Core Types and Config
+
+Goal: Shared enums, dataclasses, and config.
+
+Prompt to coder
+Implement src/core/types.py:
+	•	Enums: PetType {CHICKEN, CAT, DOG, DUCK}, Direction {UP, DOWN, LEFT, RIGHT}, State {STAND, WALK, SIT, EAT}
+	•	PetMemory: name:str, type:PetType, pet_count:int, lived_seconds:int, mood:int, summary:str
+	•	PetModel: id:str, memory:PetMemory, position:QPoint, direction:Direction, state:State
+Implement src/core/config.py:
+	•	Defaults: frame_ms=100, zoom_factor=2, autosave_sec=60
+	•	Paths: assets base dir from env SVPET_ASSETS_DIR with fallback to given absolute paths.
+
+Files:
+	•	src/core/types.py, src/core/config.py
+Tests:
+	•	Serialize/deserialize PetMemory with msgspec.
+Commit: feat(core): shared types and config

@@ -1,0 +1,21 @@
+Module 1 — Transparent Always-on-Top Window + Click-Through Mask
+
+Goal: Frameless, translucent, always-on-top window that only captures clicks on opaque sprite pixels.
+
+Prompt to coder
+Implement src/ui/pet_window.py:
+	•	PetWindow(QWidget) with flags Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint and attribute WA_TranslucentBackground.
+	•	Maintain a QPixmap current frame and a QRegion mask computed from alpha >0. Apply with setMask(region).
+	•	Mouse events: if click point not in mask, call QApplication.sendEvent to underlying apps (simulate click-through) by ignoring event. If in mask, emit clicked signal.
+	•	Dragging: on mouse press within mask, record offset; on move, move window; on release, stop.
+	•	Public API:
+	•	set_frame(pixmap: QPixmap) -> None
+	•	set_scale(f: int) -> None (1 or 2)
+	•	set_position(QPoint)
+	•	Emits: clicked(QPoint), doubleClicked(QPoint), dragStarted(), dragEnded().
+
+Files:
+	•	src/ui/pet_window.py
+Tests:
+	•	Window stays on top. Transparent outside sprite. Clicks outside sprite pass through. Drag moves window.
+Commit: feat(ui): transparent always-on-top window with alpha mask and dragging

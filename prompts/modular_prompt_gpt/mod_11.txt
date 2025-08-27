@@ -1,0 +1,16 @@
+Module 11 — System Tray
+
+Goal: Menubar tray with actions.
+
+Prompt to coder
+Implement src/tray/menu.py:
+	•	QSystemTrayIcon with menu: Add Pet, Remove Pet, Zoom-In, Zoom-Out, Connect LLM, Quit.
+	•	Icon: load 16×16 frame 0 from chicken_brown.png at path provided.
+	•	Zoom multiplies global scale 1↔2 and emits signal.
+	•	Connect LLM opens directory chooser and emits chosen path.
+
+Files:
+	•	src/tray/menu.py
+Tests:
+	•	Menu actions emit correct signals. Icon loads.
+Commit: feat(tray): system tray with actions and zoom

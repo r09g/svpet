@@ -1,0 +1,16 @@
+Module 10 — Persistence and Autosave
+
+Goal: Local file storage per pet. Minute autosave and on interaction.
+
+Prompt to coder
+Implement src/store/persistence.py:
+	•	Format: JSON or msgpack using msgspec. One file per pet store/pets/{id}.msgpack.
+	•	Fields: PetMemory plus position, direction, state, last_seen_ts.
+	•	API: load_all()->list[PetModel], save(PetModel), delete(pet_id).
+	•	Autosave timer every 60 s. Also save on interaction.
+
+Files:
+	•	src/store/persistence.py
+Tests:
+	•	Create, save, reload equals. Autosave triggers.
+Commit: feat(store): pet persistence with autosave

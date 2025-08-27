@@ -12,7 +12,7 @@ Visualization:
 Should be parameterized as much as possible for compatibility with different screen sizes, environments, and zoom levels.
 
 Framework:
-Electron js with Python modules.
+Python with PySide6, PyQt6
 
 Program Interrupt:
 Add try-except to catch any Ctrl-C key presses, if caught, exit application properly.

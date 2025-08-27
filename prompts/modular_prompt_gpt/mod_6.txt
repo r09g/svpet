@@ -1,0 +1,16 @@
+Module 6 — Animation Orchestrator
+
+Goal: Connect FSM to window via Animator.
+
+Prompt to coder
+Implement src/ui/anim_orchestrator.py:
+	•	Binds ChickenController.frameRequest → Animator.set_sequence(...)
+	•	On Animator.frameReady, call PetWindow.set_frame(pixmap)
+	•	Enforce “busy until sequence done” for one-shot sequences before accepting new.
+	•	Respect global zoom by scaling pixmap before mask computation.
+
+Files:
+	•	src/ui/anim_orchestrator.py
+Tests:
+	•	One-shot sit plays then holds last frame; walk loops.
+Commit: feat(ui): animation orchestrator wiring

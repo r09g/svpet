@@ -1,0 +1,22 @@
+Module 4 — Chicken FSM + Movement
+
+Goal: State machine per spec. Manhattan walking with min turns.
+
+Prompt to coder
+Implement src/pet/fsm.py and src/pet/chicken.py:
+	•	FSM tick every 200 ms. Rules from spec:
+	•	STAND: stay random 5–15 s then transition with P={STAND:0.1,WALK:0.4,SIT:0.4,EAT:0.2}
+	•	WALK: choose valid on-screen target; Manhattan path; on arrival → STAND
+	•	SIT: 10–30 s then P={STAND:0.4,WALK:0.1,SIT:0.4}
+	•	EAT: 3–10 s then P={STAND:0.4,WALK:0.3,SIT:0.3}
+	•	Direction derives from last movement delta.
+	•	Provide next_frame_indices(state, direction) using mapping from Module 5.
+API:
+	•	class ChickenController(QObject): tick(), requestEmote(kind:str), setMood(int)
+	•	Emits: stateChanged, directionChanged, frameRequest(list[int], loop:bool), positionChanged(QPoint)
+
+Files:
+	•	src/pet/fsm.py, src/pet/chicken.py
+Tests:
+	•	Simulate 60 s; all states reachable; WALK produces axis-aligned moves.
+Commit: feat(pet): chicken FSM with Manhattan movement

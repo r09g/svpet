@@ -1,0 +1,17 @@
+Module 0 — Bootstrap and App Loop
+
+Goal: Entry point, Ctrl-C handling, single-instance guard.
+
+Prompt to coder
+Implement src/app.py:
+	•	Create QApplication. Set quit on last window closed = False.
+	•	Wrap app.exec() in try/except KeyboardInterrupt and call a central shutdown() that emits a signal.
+	•	Single-instance guard via QLockFile in temp dir svpet.lock.
+	•	Create and show the transparent pet window from Module 1 when available; for now show an empty frameless translucent window.
+
+Files:
+	•	src/app.py
+Tests:
+	•	Run, press Ctrl-C in terminal. Process exits cleanly.
+Commit: chore(app): bootstrap Qt app with Ctrl-C and single-instance guard
+

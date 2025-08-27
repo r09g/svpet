@@ -1,0 +1,15 @@
+Module 16 — Add/Remove Pets Flow
+
+Goal: Multi-pet management and warnings.
+
+Prompt to coder
+Implement src/pet/manager.py:
+	•	Add Pet: dialog for type and name. Create model, default mood 50, direction DOWN, position center.
+	•	Remove Pet: list existing pets; confirm irreversible delete; remove file and close window.
+	•	Maintain a list of active PetWindow + controllers.
+
+Files:
+	•	src/pet/manager.py
+Tests:
+	•	Add two chickens with distinct names. Remove one after confirm.
+Commit: feat(pet): manager for add/remove with persistence

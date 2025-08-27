@@ -1,0 +1,29 @@
+Module 5 — Chicken Sprite Mapping
+
+Goal: Implement exact indices and state→animation mapping.
+
+Prompt to coder
+Implement src/pet/chicken_sprites.py:
+	•	Constants per spec:
+walk_up=[8,9,10,11]
+walk_right=[4,5,6,7]
+walk_down=[0,1,2,3]
+walk_left=[12,13,14,15]
+sit_down=[16,17]; sit_right=[18,19]; sit_up=[20,21]; sit_left=[22,23]
+stand_down=[17,16]; stand_right=[19,18]; stand_up=[21,20]; stand_left=[23,22]
+eat=[24,25,26,27]
+
+	•	Mapping function:
+	•	STAND: hold first frame of last walk_${dir} if prior was walk/sit; else frame 0
+	•	WALK: play walk_${dir} looping
+	•	SIT: pick random dir, play sit_${dir} once, then hold last frame; if next state ≠ SIT then play stand_${dir} once
+	•	EAT: play eat looping during state duration
+	•	All frames 100 ms.
+
+Files:
+	•	src/pet/chicken_sprites.py
+Tests:
+	•	Deterministic mapping when given prev_anim.
+Commit: feat(pet): chicken sprite mapping
+
+    

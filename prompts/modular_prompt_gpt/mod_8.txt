@@ -1,0 +1,15 @@
+Module 8 — Interaction: Click, Double-Click, Drag
+
+Goal: Click triggers emote. Double-click toggles chatbox. Drag freezes state changes.
+
+Prompt to coder
+Implement src/ui/interaction.py:
+	•	Subscribe to PetWindow.clicked → call requestEmote().
+	•	doubleClicked → open/close chatbox (Module 11).
+	•	While dragging: suspend FSM transitions but keep current animation playing; resume on drag end.
+
+Files:
+	•	src/ui/interaction.py
+Tests:
+	•	Click shows emote sequence. Drag prevents state changes.
+Commit: feat(ui): interaction handlers for click/double-click/drag

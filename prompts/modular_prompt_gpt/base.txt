@@ -1,0 +1,31 @@
+Stack: Python3, PySide6. 
+Repo root already exists with git init. 
+Use src/ for code. 
+Always run shell with source venv/bin/activate. 
+Use uv pip install ... 
+
+<Structure>
+src/
+  app.py
+  core/        # types, utils, config
+  ui/          # Qt widgets, scenes
+  sprites/     # loading, animation
+  pet/         # model + FSM per type
+  emote/       # emote system
+  chat/        # chatbox UI + LLM IO
+  store/       # persistence
+  tray/        # system tray
+assets/        # sprite sheets (not tracked here)
+</Structure>
+
+Conventions: type hints, black + ruff. No blocking I/O on UI thread. Use signals/slots.
+Shell: source venv/bin/activate; install with uv pip install pyside6 pydantic msgspec.
+Do not change user asset paths. Parameterize paths.
+Each module writes minimal docstrings and a short README.md section.
+
+
+
+
+
+
+

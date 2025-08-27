@@ -1,0 +1,29 @@
+Module 7 — Emote System
+
+Goal: Emote sheet, enter/exit wrapper, mood-based selection.
+
+Prompt to coder
+Implement:
+	•	src/emote/sheet.py: load emote sheet 16×4, 16×16 tiles.
+	•	src/emote/engine.py:
+	•	Valid emotes = {confused, angry, important, love, sleepy, sad, happy, speechless}
+	•	Map indices:
+
+enter=[0,1,2,3]; exit=[3,2,1,0]
+confused=[12,13,14,15]; angry=[16,17,18,19]; important=[20,21,22,23]
+love=[24,25,26,27]; sleepy=[28,29,30,31]; sad=[32,33,34,35]
+happy=[36,37,38,39]; speechless=[44,45,46,47]
+
+	•	Build sequence: [enter] + 3×[chosen] + [exit]
+	•	Selection:
+	•	mood ≥ 75 → random from {happy, love, important, sleepy}
+	•	mood ≤ 50 → random from {angry, sad, confused, speechless, sleepy}
+	•	else → random from {confused, angry, important, sleepy, speechless}
+
+	•	Render emote in a QGraphicsItem placed directly above pet, no overlap.
+
+Files:
+	•	src/emote/sheet.py, src/emote/engine.py
+Tests:
+	•	Sequence length and order match spec. Emote item follows pet on drag.
+Commit: feat(emote): engine with mood-based selection and enter/exit wrapper

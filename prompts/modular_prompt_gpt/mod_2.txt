@@ -1,0 +1,18 @@
+Module 2 — Sprite Sheet Loader and Animator
+
+Goal: Load grid sheets and play frame sequences at 100 ms default.
+
+Prompt to coder
+Implement:
+	•	src/sprites/sheet.py: SpriteSheet(path, tile_w, tile_h, margin_x=0, margin_y=0, spacing_x=0, spacing_y=0) with frame(index:int)->QPixmap.
+	•	src/sprites/animator.py: Animator(tick_ms=100) with:
+	•	set_sequence(indices: list[int], loop: bool=True)
+	•	advance() on QTimer to emit frameReady(QPixmap)
+	•	busy() when sequence marked non-interruptible
+	•	No disk I/O in UI thread on hot path; load once then slice.
+
+Files:
+	•	src/sprites/sheet.py, src/sprites/animator.py
+Tests:
+	•	Given a 4×4 dummy sheet, indices=[0,1,2] cycles at ~100 ms.
+Commit: feat(sprites): sprite sheet loader and animator
