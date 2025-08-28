@@ -61,8 +61,8 @@ EMOTE_ANIMATIONS = {
 ANIMATION_LOOPS = {
     "walk_up": True, "walk_right": True, "walk_down": True, "walk_left": True,
     "eat": True,
-    "sit_down": True, "sit_right": True, "sit_up": True, "sit_left": True,
-    "stand_down": True, "stand_right": True, "stand_up": True, "stand_left": True,
+    "sit_down": False, "sit_right": False, "sit_up": False, "sit_left": False,
+    "stand_down": False, "stand_right": False, "stand_up": False, "stand_left": False,
     "enter": False, "exit": False, "confused": False, "angry": False,
     "important": False, "love": False, "sleepy": False, "sad": False,
     "happy": False, "speechless": False
@@ -115,8 +115,8 @@ STATE_TRANSITIONS = {
         "EAT": 0      # Probability of transitioning to EAT
     },
     "SIT": {
-        "IDLE": 0.5,    # Probability of transitioning to IDLE
-        "WALK": 0.5,    # Probability of transitioning to WALK
+        "IDLE": 1,    # Probability of transitioning to IDLE
+        "WALK": 0,    # Probability of transitioning to WALK
         "SIT": 0      # Probability of staying in SIT
     },
     "WALK": {

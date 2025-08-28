@@ -92,9 +92,11 @@ class Pet:
     target_position: Optional[tuple[int, int]] = None
     is_dragging: bool = False
     state_target_duration: float = 0.0  # Target duration for current state
-    is_sitting_down: bool = False  # True during sit animation, False when holding sit pose
     walking_path: List[tuple[int, int]] = None  # Manhattan path for walking
     path_index: int = 0  # Current position in walking path
+    sit_animation_playing: bool = False  # True when sit animation is playing
+    stand_animation_playing: bool = False  # True when stand animation is playing
+    pending_state_after_stand: Optional['ChickenState'] = None  # State to transition to after stand animation
     
     def __post_init__(self):
         if self.state_start_time == 0.0:

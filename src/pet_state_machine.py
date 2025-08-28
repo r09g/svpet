@@ -181,35 +181,16 @@ class ChickenStateMachine:
                 walk_anim = f"walk_{self.pet.direction.value}"
                 self.animation_manager.play_animation(walk_anim, force=True)
                 print(f"  Starting walk facing: {self.pet.direction.value}")
-        elif new_state == ChickenState.SIT:
-            # Simple SIT state - just play sit animation and hold last frame
-            sit_anim = f"sit_{self.pet.direction.value}"
-            print(f"  Sitting facing: {self.pet.direction.value}")
-            self.animation_manager.play_animation(sit_anim, force=True)
-            
-            # After animation plays, hold the last frame
-            if sit_anim in self.animation_manager.animations:
-                last_frame = self.animation_manager.animations[sit_anim].frames[-1]
-                self.animation_manager.hold_frame("chicken", last_frame)
-
         
-        # Handle transitions FROM SIT state
-        if old_state == ChickenState.SIT and new_state != ChickenState.SIT:
-            # Simple stand transition - play stand animation and hold last frame
-            stand_anim = f"stand_{self.pet.direction.value}"
-            print(f"  Standing up from sit")
-            self.animation_manager.play_animation(stand_anim, force=True)
-            
-            # Hold last frame of stand animation
-            if stand_anim in self.animation_manager.animations:
-                last_frame = self.animation_manager.animations[stand_anim].frames[-1]
-                self.animation_manager.hold_frame("chicken", last_frame)
+        # Handle SIT state transitions (Mealy state machine)
+        self._handle_sit_transitions(old_state, new_state)
         
         if new_state == ChickenState.IDLE:
             self._handle_idle_animation(old_state)
         elif new_state == ChickenState.EAT:
-            # Play eat animation
-            self.animation_manager.play_animation("eat", force=True)
+            # Play eat animation only if not transitioning from SIT (handled in sit transitions)
+            if old_state != ChickenState.SIT:
+                self.animation_manager.play_animation("eat", force=True)
     
     def update_walk_state(self):
         """Update walking behavior using Manhattan pathfinding"""
@@ -298,18 +279,11 @@ class ChickenStateMachine:
     
     def _handle_idle_animation(self, old_state: ChickenState):
         """Handle IDLE state animation based on previous state - simplified"""
-        if old_state == ChickenState.WALK:
+        if old_state == ChickenState.WALK or old_state == ChickenState.SIT:
             # If previous was walk, hold first frame of walk animation in current direction
             walk_anim_name = f"walk_{self.pet.direction.value}"
             if walk_anim_name in self.animation_manager.animations:
                 first_frame = self.animation_manager.animations[walk_anim_name].frames[0]
-                self.animation_manager.hold_frame("chicken", first_frame)
-        elif old_state == ChickenState.SIT:
-            # If previous was sit, hold first frame of walk animation in current direction
-            walk_anim_name = f"walk_{self.pet.direction.value}"
-            if walk_anim_name in self.animation_manager.animations:
-                first_frame = self.animation_manager.animations[walk_anim_name].frames[0]
-                self.animation_manager.hold_frame("chicken", first_frame)
         else:
             # Default case: hold frame 0
             self.animation_manager.hold_frame("chicken", 0)
@@ -334,9 +308,74 @@ class ChickenStateMachine:
         # Update current state behavior
         if self.pet.current_state == ChickenState.WALK:
             self.update_walk_state()
+        elif self.pet.current_state == ChickenState.SIT:
+            self.update_sit_state()
         
         # Check for state transitions
         if self.should_transition_state():
             next_state = self.get_next_state()
             self.transition_to_state(next_state)
+    
+    def _handle_sit_transitions(self, old_state: ChickenState, new_state: ChickenState):
+        """Handle SIT state transitions with proper Mealy state machine behavior"""
+        
+        # Case 1: Transitioning TO SIT state from non-SIT states
+        if new_state == ChickenState.SIT and old_state != ChickenState.SIT:
+            # Play sit animation once when entering SIT state
+            sit_anim = f"sit_{self.pet.direction.value}"
+            print(f"  Transitioning to SIT: playing {sit_anim}")
+            self.animation_manager.play_animation(sit_anim, force=True)
+            
+            # Mark that we need to hold the last frame after animation completes
+            self.pet.sit_animation_playing = True
+            
+        # Case 2: Already IN SIT state, staying in SIT (SIT -> SIT)
+        elif new_state == ChickenState.SIT and old_state == ChickenState.SIT:
+            # Do nothing - continue holding the sit pose
+            print(f"  Staying in SIT state - no animation change")
+            
+        # Case 3: Transitioning FROM SIT state to non-SIT states  
+        elif old_state == ChickenState.SIT and new_state != ChickenState.SIT:
+            # Play stand animation once when leaving SIT state
+            stand_anim = f"stand_{self.pet.direction.value}"
+            print(f"  Transitioning from SIT: playing {stand_anim}")
+            self.animation_manager.play_animation(stand_anim, force=True)
+            
+            # Mark that we need to transition to the new state after stand animation
+            self.pet.stand_animation_playing = True
+            self.pet.pending_state_after_stand = new_state
+    
+    def update_sit_state(self):
+        """Update SIT state behavior"""
+        # Check if sit animation just finished
+        if self.pet.sit_animation_playing:
+            current_anim = self.animation_manager.current_animation
+            if current_anim and current_anim in self.animation_manager.animations:
+                anim = self.animation_manager.animations[current_anim]
+                if anim.is_finished():
+                    # Sit animation finished - hold the last frame
+                    last_frame = anim.frames[-1]
+                    self.animation_manager.hold_frame("chicken", last_frame)
+                    self.pet.sit_animation_playing = False
+                    print(f"  Sit animation finished - holding last frame ({last_frame})")
+        
+        # Check if stand animation just finished (transitioning out of SIT)
+        if self.pet.stand_animation_playing:
+            current_anim = self.animation_manager.current_animation
+            if current_anim and current_anim in self.animation_manager.animations:
+                anim = self.animation_manager.animations[current_anim]
+                if anim.is_finished():
+                    # Stand animation finished - transition to the pending state
+                    self.pet.stand_animation_playing = False
+                    pending_state = self.pet.pending_state_after_stand
+                    self.pet.pending_state_after_stand = None
+                    print(f"  Stand animation finished - transitioning to {pending_state.value if pending_state else 'None'}")
+                    
+                    if pending_state == ChickenState.IDLE:
+                        self._handle_idle_animation(ChickenState.SIT)
+                    elif pending_state == ChickenState.EAT:
+                        self.animation_manager.play_animation("eat", force=True)
+                    elif pending_state == ChickenState.WALK:
+                        # Walking behavior will be handled by the walk state update
+                        pass
     
