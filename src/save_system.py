@@ -2,7 +2,7 @@ import json
 import os
 import time
 from typing import List, Dict, Optional
-from pet_data import Pet, PetMemory, PetType, Direction, ChickenState
+from pet_data import Pet, PetMemory, PetType, Direction, PetState
 
 class SaveSystem:
     def __init__(self, save_directory: str = "pet_saves"):
@@ -120,7 +120,7 @@ class SaveSystem:
                 memory=memory,
                 position=tuple(pet_data.get("position", (100, 100))),
                 direction=Direction(pet_data.get("direction", "down")),
-                current_state=ChickenState(pet_data.get("current_state", "IDLE")),
+                current_state=PetState(pet_data.get("current_state", "IDLE")),
                 target_position=None,  # Reset target position on load
                 is_dragging=False  # Reset dragging state
             )

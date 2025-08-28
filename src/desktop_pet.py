@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtCore import QTimer, QObject, Signal
 from PySide6.QtGui import QScreen
 
-from pet_data import Pet, PetMemory, PetType, ChickenState, Direction
+from pet_data import Pet, PetMemory, PetType, PetState, Direction
 from pet_widget import PetWidget
 from emote_system import EmoteManager
 from chat_system import ChatWidget

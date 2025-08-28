@@ -3,7 +3,8 @@ from PySide6.QtCore import Qt, QTimer, QPoint, Signal
 from PySide6.QtGui import QPixmap, QPainter, QMouseEvent
 from pet_data import Pet
 from animation_system import AnimationManager
-from pet_state_machine import ChickenStateMachine
+from pet_state_machine import PetStateMachine
+from Config import DEBUG_SETTINGS
 import random
 
 class PetWidget(QWidget):
@@ -23,7 +24,7 @@ class PetWidget(QWidget):
         self.animation_manager.load_sprite_sheet("chicken", sprite_sheet_path, 16, 16)
         
         # State machine
-        self.state_machine = ChickenStateMachine(pet, self.animation_manager)
+        self.state_machine = PetStateMachine(pet, self.animation_manager)
         
         # Setup widget
         self.setup_widget()
@@ -157,7 +158,8 @@ class PetWidget(QWidget):
                 self.pet.is_dragging = True
                 self.click_timer.stop()  # Cancel pending single click
                 self.click_count = 0     # Reset click count
-                print(f"Dragging {self.pet.memory.name} started")
+                if DEBUG_SETTINGS["enable_state_logging"]:
+                    print(f"[DEBUG] Dragging {self.pet.memory.name} started")
                 
                 # Cancel any ongoing animations
                 if self.animation_manager.current_animation:
@@ -176,7 +178,8 @@ class PetWidget(QWidget):
                 # End dragging
                 self.is_dragging = False
                 self.pet.is_dragging = False
-                print(f"Dragging {self.pet.memory.name} stopped at ({self.pet.position[0]}, {self.pet.position[1]})")
+                if DEBUG_SETTINGS["enable_state_logging"]:
+                    print(f"[DEBUG] Dragging {self.pet.memory.name} stopped at ({self.pet.position[0]}, {self.pet.position[1]})")
     
     def show_emote(self, emote_type: str):
         """Show emote animation"""

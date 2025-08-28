@@ -17,11 +17,14 @@ class Direction(Enum):
     LEFT = "left"
     RIGHT = "right"
 
-class ChickenState(Enum):
+class PetState(Enum):
     IDLE = "IDLE"
     WALK = "WALK"
     SIT = "SIT"
     EAT = "EAT"
+
+# Backward compatibility alias
+ChickenState = PetState
 
 @dataclass
 class PetMemory:
@@ -87,7 +90,7 @@ class Pet:
     memory: PetMemory
     position: tuple[int, int] = (100, 100)
     direction: Direction = Direction.DOWN
-    current_state: ChickenState = ChickenState.IDLE
+    current_state: PetState = PetState.IDLE
     state_start_time: float = 0.0
     target_position: Optional[tuple[int, int]] = None
     is_dragging: bool = False
@@ -96,7 +99,7 @@ class Pet:
     path_index: int = 0  # Current position in walking path
     sit_animation_playing: bool = False  # True when sit animation is playing
     stand_animation_playing: bool = False  # True when stand animation is playing
-    pending_state_after_stand: Optional['ChickenState'] = None  # State to transition to after stand animation
+    pending_state_after_stand: Optional['PetState'] = None  # State to transition to after stand animation
     
     def __post_init__(self):
         if self.state_start_time == 0.0:
