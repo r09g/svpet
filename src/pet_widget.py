@@ -33,9 +33,11 @@ class PetWidget(QWidget):
         self.update_timer.timeout.connect(self.update_pet)
         self.update_timer.start(50)  # 20 FPS
         
-        # Dragging
+        # Dragging and clicking
         self.is_dragging = False
         self.drag_offset = QPoint()
+        self.drag_start_pos = QPoint()
+        self.drag_threshold = 5  # Minimum pixels to move before considering it a drag
         self.click_timer = QTimer()
         self.click_timer.setSingleShot(True)
         self.click_timer.timeout.connect(self.handle_single_click)
@@ -135,16 +137,18 @@ class PetWidget(QWidget):
                 # Start timer for single click detection
                 self.click_timer.start(300)  # 300ms for double-click detection
                 self.drag_offset = event.position().toPoint()
+                self.drag_start_pos = event.position().toPoint()
                 
             elif self.click_count == 2:
-                # Double click
+                # Double click - cancel single click timer
                 self.click_timer.stop()
                 self.click_count = 0
                 self.pet_double_clicked.emit()
     
     def handle_single_click(self):
         """Handle single click after timer expires"""
-        if self.click_count == 1:
+        if self.click_count == 1 and not self.is_dragging:
+            # Only emit click if we're not dragging
             self.pet_clicked.emit()
             self.pet.memory.pet_interaction()
         self.click_count = 0
@@ -152,25 +156,36 @@ class PetWidget(QWidget):
     def mouseMoveEvent(self, event: QMouseEvent):
         """Handle mouse move events (dragging)"""
         if event.buttons() & Qt.LeftButton:
-            if not self.is_dragging:
+            # Check if we've moved enough to start dragging
+            current_pos = event.position().toPoint()
+            distance = (current_pos - self.drag_start_pos).manhattanLength()
+            
+            if not self.is_dragging and distance > self.drag_threshold:
+                # Start dragging - cancel any pending click events
                 self.is_dragging = True
                 self.pet.is_dragging = True
+                self.click_timer.stop()  # Cancel pending single click
+                self.click_count = 0     # Reset click count
                 print(f"Dragging {self.pet.memory.name} started")
+                
                 # Cancel any ongoing animations
                 if self.animation_manager.current_animation:
                     self.animation_manager.animations[self.animation_manager.current_animation].stop()
             
-            # Move widget and update pet position
-            new_pos = self.mapToParent(event.position().toPoint() - self.drag_offset)
-            self.move(new_pos)
-            self.pet.position = (new_pos.x(), new_pos.y())
+            if self.is_dragging:
+                # Move widget and update pet position
+                new_pos = self.mapToParent(current_pos - self.drag_offset)
+                self.move(new_pos)
+                self.pet.position = (new_pos.x(), new_pos.y())
     
     def mouseReleaseEvent(self, event: QMouseEvent):
         """Handle mouse release events"""
-        if event.button() == Qt.LeftButton and self.is_dragging:
-            self.is_dragging = False
-            self.pet.is_dragging = False
-            print(f"Dragging {self.pet.memory.name} stopped at ({self.pet.position[0]}, {self.pet.position[1]})")
+        if event.button() == Qt.LeftButton:
+            if self.is_dragging:
+                # End dragging
+                self.is_dragging = False
+                self.pet.is_dragging = False
+                print(f"Dragging {self.pet.memory.name} stopped at ({self.pet.position[0]}, {self.pet.position[1]})")
     
     def show_emote(self, emote_type: str):
         """Show emote animation"""

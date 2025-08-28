@@ -78,7 +78,6 @@ class AnimationManager:
         self.sprite_sheets: Dict[str, SpriteSheet] = {}
         self.animations: Dict[str, Animation] = {}
         self.current_animation: Optional[str] = None
-        self.animation_queue: List[str] = []
         self.held_frame_data: Optional[tuple] = None  # (sprite_sheet_name, frame_index)
         
     def load_sprite_sheet(self, name: str, image_path: str, tile_width: int, tile_height: int):
@@ -97,21 +96,16 @@ class AnimationManager:
         # Clear held frame when starting animation
         self.held_frame_data = None
         
-        # Don't interrupt current animation unless forced
+        # Don't interrupt current animation unless forced - if not forced, drop the animation
         if self.current_animation and not force:
             current_anim = self.animations[self.current_animation]
             if current_anim.is_playing and not current_anim.is_finished():
-                self.animation_queue.append(name)
-                return False
+                return False  # Drop the animation instead of queuing
         
         self.current_animation = name
         self.animations[name].start()
         return True
     
-    def queue_animation(self, name: str):
-        """Queue an animation to play after current one finishes"""
-        if name in self.animations:
-            self.animation_queue.append(name)
     
     def update(self):
         """Update animation state - call this every frame"""
@@ -120,11 +114,6 @@ class AnimationManager:
             
             if not current_anim.loop and current_anim.is_finished():
                 self.current_animation = None
-                
-                # Play next queued animation
-                if self.animation_queue:
-                    next_anim = self.animation_queue.pop(0)
-                    self.play_animation(next_anim, force=True)
     
     def get_current_pixmap(self, sprite_sheet_name: str) -> Optional[QPixmap]:
         """Get current frame as pixmap"""

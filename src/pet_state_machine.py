@@ -87,30 +87,16 @@ class ChickenStateMachine:
         
         path = [start]
         
-        # Move horizontally first, then vertically (or vice versa randomly)
-        if random.choice([True, False]):
-            # Horizontal first
-            if start_x != end_x:
-                step = 1 if end_x > start_x else -1
-                for x in range(start_x + step, end_x + step, step):
-                    path.append((x, start_y))
-            
-            if start_y != end_y:
-                step = 1 if end_y > start_y else -1
-                for y in range(start_y + step, end_y + step, step):
-                    path.append((end_x, y))
-        else:
-            # Vertical first
-            if start_y != end_y:
-                step = 1 if end_y > start_y else -1
-                for y in range(start_y + step, end_y + step, step):
-                    path.append((start_x, y))
-            
-            if start_x != end_x:
-                step = 1 if end_x > start_x else -1
-                for x in range(start_x + step, end_x + step, step):
-                    path.append((x, end_y))
+        # Horizontal first
+        if start_x != end_x:
+            step = 1 if end_x > start_x else -1
+            for x in range(start_x + step, end_x + step, step):
+                path.append((x, start_y))
         
+        if start_y != end_y:
+            step = 1 if end_y > start_y else -1
+            for y in range(start_y + step, end_y + step, step):
+                path.append((end_x, y))
         return path
     
     def get_direction_to_target(self, current: Tuple[int, int], target: Tuple[int, int]) -> Direction:
@@ -172,9 +158,12 @@ class ChickenStateMachine:
         self._log_state_details(new_state)
         
         if new_state == ChickenState.WALK:
-            # Set random target position
+            # Set random target position and calculate Manhattan path
             self.pet.target_position = self.get_random_screen_position()
+            self.pet.walking_path = self.calculate_manhattan_path(self.pet.position, self.pet.target_position)
+            self.pet.path_index = 0
             print(f"  Target: ({self.pet.target_position[0]}, {self.pet.target_position[1]})")
+            print(f"  Path steps: {len(self.pet.walking_path)}")
         elif new_state == ChickenState.SIT:
             # Simple SIT state - just play sit animation and hold last frame
             sit_anim = f"sit_{self.pet.direction.value}"
@@ -206,30 +195,48 @@ class ChickenStateMachine:
             self.animation_manager.play_animation("eat", force=True)
     
     def update_walk_state(self):
-        """Update walking behavior"""
-        if not self.pet.target_position:
+        """Update walking behavior using Manhattan pathfinding"""
+        if not self.pet.target_position or not hasattr(self.pet, 'walking_path'):
             return
         
-        current_pos = self.pet.position
-        target_pos = self.pet.target_position
-        
-        # Calculate direction and move towards target
-        dx = target_pos[0] - current_pos[0]
-        dy = target_pos[1] - current_pos[1]
-        
-        if abs(dx) <= 1 and abs(dy) <= 1:
-            # Reached target
-            self.pet.position = target_pos
+        # Check if we've reached the end of the path
+        if self.pet.path_index >= len(self.pet.walking_path):
             print(f"  {self.pet.memory.name} reached target")
             self.pet.target_position = None
+            self.pet.walking_path = []
+            self.pet.path_index = 0
             return
         
-        # Update direction based on movement
-        self.pet.direction = self.get_direction_to_target(current_pos, target_pos)
+        # Get current and next positions in path
+        current_pos = self.pet.position
+        next_pos = self.pet.walking_path[self.pet.path_index]
         
-        # Move towards target at configured speed
-        move_x = MOVEMENT_SPEED if dx > 0 else -MOVEMENT_SPEED if dx < 0 else 0
-        move_y = MOVEMENT_SPEED if dy > 0 else -MOVEMENT_SPEED if dy < 0 else 0
+        # Check if we've reached the current path step
+        if abs(next_pos[0] - current_pos[0]) <= MOVEMENT_SPEED and abs(next_pos[1] - current_pos[1]) <= MOVEMENT_SPEED:
+            # Move to exact position and advance to next path step
+            self.pet.position = next_pos
+            self.pet.path_index += 1
+            return
+        
+        # Move towards next position (single axis movement)
+        dx = next_pos[0] - current_pos[0]
+        dy = next_pos[1] - current_pos[1]
+        
+        # Move only in one direction (Manhattan movement) and set direction accordingly
+        if abs(dx) > abs(dy) and dx != 0:
+            # Move horizontally
+            move_x = MOVEMENT_SPEED if dx > 0 else -MOVEMENT_SPEED
+            move_y = 0
+            new_direction = Direction.RIGHT if dx > 0 else Direction.LEFT
+        elif dy != 0:
+            # Move vertically
+            move_x = 0
+            move_y = MOVEMENT_SPEED if dy > 0 else -MOVEMENT_SPEED
+            new_direction = Direction.DOWN if dy > 0 else Direction.UP
+        else:
+            # No movement needed (shouldn't happen but safety check)
+            move_x = move_y = 0
+            new_direction = self.pet.direction
         
         new_x = current_pos[0] + move_x
         new_y = current_pos[1] + move_y
@@ -240,7 +247,11 @@ class ChickenStateMachine:
         
         self.pet.position = (new_x, new_y)
         
-        # Play walk animation continuously while walking
+        # Update direction only if it changed to match current movement
+        if new_direction != self.pet.direction:
+            self.pet.direction = new_direction
+        
+        # Play walk animation that matches current movement direction
         walk_anim = f"walk_{self.pet.direction.value}"
         if self.animation_manager.current_animation != walk_anim:
             self.animation_manager.play_animation(walk_anim, force=True)

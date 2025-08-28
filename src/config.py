@@ -86,11 +86,33 @@ STATE_DURATIONS = {
 
 # State transition probabilities
 STATE_TRANSITIONS = {
+    # "IDLE": {
+    #     "IDLE": 0.1,    # Probability of staying in IDLE
+    #     "WALK": 0.4,    # Probability of transitioning to WALK
+    #     "SIT": 0.4,     # Probability of transitioning to SIT
+    #     "EAT": 0.1      # Probability of transitioning to EAT
+    # },
+    # "SIT": {
+    #     "IDLE": 0.4,    # Probability of transitioning to IDLE
+    #     "WALK": 0.1,    # Probability of transitioning to WALK
+    #     "SIT": 0.5      # Probability of staying in SIT
+    # },
+    # "WALK": {
+    #     "IDLE": 0.5,    # Probability of transitioning to IDLE
+    #     "SIT": 0.3,     # Probability of transitioning to SIT
+    #     "EAT": 0.1,     # Probability of transitioning to EAT
+    #     "WALK": 0.1     # Probability of continuing to walk (new destination)
+    # },
+    # "EAT": {
+    #     "IDLE": 0.4,    # Probability of transitioning to IDLE
+    #     "WALK": 0.3,    # Probability of transitioning to WALK
+    #     "SIT": 0.3      # Probability of transitioning to SIT
+    # }
     "IDLE": {
-        "IDLE": 0.1,    # Probability of staying in IDLE
-        "WALK": 0.4,    # Probability of transitioning to WALK
-        "SIT": 0.4,     # Probability of transitioning to SIT
-        "EAT": 0.1      # Probability of transitioning to EAT
+        "IDLE": 0,    # Probability of staying in IDLE
+        "WALK": 1,    # Probability of transitioning to WALK
+        "SIT": 0,     # Probability of transitioning to SIT
+        "EAT": 0      # Probability of transitioning to EAT
     },
     "SIT": {
         "IDLE": 0.4,    # Probability of transitioning to IDLE
@@ -98,10 +120,10 @@ STATE_TRANSITIONS = {
         "SIT": 0.5      # Probability of staying in SIT
     },
     "WALK": {
-        "IDLE": 0.5,    # Probability of transitioning to IDLE
-        "SIT": 0.3,     # Probability of transitioning to SIT
-        "EAT": 0.1,     # Probability of transitioning to EAT
-        "WALK": 0.1     # Probability of continuing to walk (new destination)
+        "IDLE": 0,    # Probability of transitioning to IDLE
+        "SIT": 0,     # Probability of transitioning to SIT
+        "EAT": 0,     # Probability of transitioning to EAT
+        "WALK": 1     # Probability of continuing to walk (new destination)
     },
     "EAT": {
         "IDLE": 0.4,    # Probability of transitioning to IDLE

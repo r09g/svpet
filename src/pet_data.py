@@ -93,19 +93,12 @@ class Pet:
     is_dragging: bool = False
     state_target_duration: float = 0.0  # Target duration for current state
     is_sitting_down: bool = False  # True during sit animation, False when holding sit pose
+    walking_path: List[tuple[int, int]] = None  # Manhattan path for walking
+    path_index: int = 0  # Current position in walking path
     
     def __post_init__(self):
         if self.state_start_time == 0.0:
             self.state_start_time = time.time()
+        if self.walking_path is None:
+            self.walking_path = []
     
-    def get_sprite_key(self) -> str:
-        """Get sprite key based on current state and direction"""
-        if self.current_state == ChickenState.WALK:
-            return f"walk_{self.direction.value}"
-        elif self.current_state == ChickenState.SIT:
-            return f"sit_{self.direction.value}"
-        elif self.current_state == ChickenState.IDLE:
-            return f"idle_{self.direction.value}"
-        elif self.current_state == ChickenState.EAT:
-            return "eat"
-        return "idle_down"
