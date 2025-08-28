@@ -18,7 +18,7 @@ class Direction(Enum):
     RIGHT = "right"
 
 class ChickenState(Enum):
-    STAND = "STAND"
+    IDLE = "IDLE"
     WALK = "WALK"
     SIT = "SIT"
     EAT = "EAT"
@@ -87,10 +87,12 @@ class Pet:
     memory: PetMemory
     position: tuple[int, int] = (100, 100)
     direction: Direction = Direction.DOWN
-    current_state: ChickenState = ChickenState.STAND
+    current_state: ChickenState = ChickenState.IDLE
     state_start_time: float = 0.0
     target_position: Optional[tuple[int, int]] = None
     is_dragging: bool = False
+    state_target_duration: float = 0.0  # Target duration for current state
+    is_sitting_down: bool = False  # True during sit animation, False when holding sit pose
     
     def __post_init__(self):
         if self.state_start_time == 0.0:
@@ -102,8 +104,8 @@ class Pet:
             return f"walk_{self.direction.value}"
         elif self.current_state == ChickenState.SIT:
             return f"sit_{self.direction.value}"
-        elif self.current_state == ChickenState.STAND:
-            return f"stand_{self.direction.value}"
+        elif self.current_state == ChickenState.IDLE:
+            return f"idle_{self.direction.value}"
         elif self.current_state == ChickenState.EAT:
             return "eat"
-        return "stand_down"
+        return "idle_down"

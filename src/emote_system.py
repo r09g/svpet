@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QLabel
 from PySide6.QtCore import Qt, QTimer, QPoint
 from PySide6.QtGui import QPixmap, QPainter
 from animation_system import AnimationManager
+from config import ANIMATION_DURATIONS, EMOTE_ANIMATIONS, ANIMATION_LOOPS, MOOD_EMOTES
 import random
 
 class EmoteWidget(QWidget):
@@ -36,18 +37,12 @@ class EmoteWidget(QWidget):
         self.sequence_index = 0
     
     def _init_emote_animations(self):
-        """Initialize emote animations"""
-        # Basic emote animations
-        self.animation_manager.create_animation("enter", [0, 1, 2, 3], loop=False)
-        self.animation_manager.create_animation("exit", [3, 2, 1, 0], loop=False)
-        self.animation_manager.create_animation("confused", [8, 9, 10, 11], loop=False)
-        self.animation_manager.create_animation("angry", [12, 13, 14, 15], loop=False)
-        self.animation_manager.create_animation("important", [16, 17, 18, 19], loop=False)
-        self.animation_manager.create_animation("love", [20, 21, 22, 23], loop=False)
-        self.animation_manager.create_animation("sleepy", [24, 25, 26, 27], loop=False)
-        self.animation_manager.create_animation("sad", [28, 29, 30, 31], loop=False)
-        self.animation_manager.create_animation("happy", [32, 33, 34, 35], loop=False)
-        self.animation_manager.create_animation("speechless", [40, 41, 42, 43], loop=False)
+        """Initialize emote animations from config"""
+        # Create all emote animations from config
+        for anim_name, frames in EMOTE_ANIMATIONS.items():
+            duration = ANIMATION_DURATIONS["emote"]
+            loop = ANIMATION_LOOPS.get(anim_name, False)
+            self.animation_manager.create_animation(anim_name, frames, duration_per_frame=duration, loop=loop)
     
     def setup_widget(self):
         """Setup widget properties"""
@@ -96,7 +91,8 @@ class EmoteWidget(QWidget):
         if self.is_showing:
             return
         
-        valid_emotes = ["confused", "angry", "important", "love", "sleepy", "sad", "happy", "speechless"]
+        # Get valid emotes from config (exclude enter/exit which are special)
+        valid_emotes = [emote for emote in EMOTE_ANIMATIONS.keys() if emote not in ["enter", "exit"]]
         if emote_type not in valid_emotes:
             return
         
@@ -213,8 +209,8 @@ class EmoteManager:
     def get_random_emote_by_mood(self, mood: int) -> str:
         """Get random emote based on mood score"""
         if mood >= 75:
-            return random.choice(["happy", "love", "important", "sleepy"])
+            return random.choice(MOOD_EMOTES["high"])
         elif mood <= 50:
-            return random.choice(["angry", "sad", "confused", "speechless", "sleepy"])
+            return random.choice(MOOD_EMOTES["low"])
         else:
-            return random.choice(["confused", "angry", "important", "sleepy", "speechless"])
+            return random.choice(MOOD_EMOTES["medium"])

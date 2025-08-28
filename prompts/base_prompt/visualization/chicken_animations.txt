@@ -23,7 +23,7 @@ eat: [24,25,26,27]
 
 
 <Animation-State Mapping>
-STAND: 
+IDLE: 
     if previous animation was walk_${direction} or sit_${direction}, hold the first frame of walk_${direction} sprite mapping.
     Else or if no previous animation: hold frame 0.
 

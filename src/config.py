@@ -23,32 +23,88 @@ ANIMATION_DURATIONS = {
 ANIMATION_UPDATE_FPS = 20  # Frames per second for animation updates (50ms intervals)
 
 # =============================================================================
+# SPRITE FRAME MAPPINGS
+# =============================================================================
+
+# Animal animation frame mappings (applies to chicken, cat, dog, duck)
+ANIMAL_ANIMATIONS = {
+    "walk_up": [8, 9, 10, 11],
+    "walk_right": [4, 5, 6, 7],   
+    "walk_down": [0, 1, 2, 3],    
+    "walk_left": [12, 13, 14, 15],
+    "sit_down": [16, 17], 
+    "sit_right": [18, 19], 
+    "sit_up": [21, 20], 
+    "sit_left": [23, 22], 
+    "stand_down": [17, 16],  # Reverse of sit_down
+    "stand_right": [19, 18], # Reverse of sit_right
+    "stand_up": [20, 21],    # Reverse of sit_up
+    "stand_left": [22, 23],  # Reverse of sit_left
+    "eat": [24, 25, 26, 27]
+}
+
+# Emote animation frame mappings
+EMOTE_ANIMATIONS = {
+    "enter": [0, 1, 2, 3],
+    "exit": [3, 2, 1, 0],  # Reverse of enter
+    "confused": [8, 9, 10, 11],
+    "angry": [12, 13, 14, 15],
+    "important": [16, 17, 18, 19],
+    "love": [20, 21, 22, 23],
+    "sleepy": [24, 25, 26, 27],
+    "sad": [28, 29, 30, 31],
+    "happy": [32, 33, 34, 35],
+    "speechless": [40, 41, 42, 43]
+}
+
+# Animation loop settings
+ANIMATION_LOOPS = {
+    "walk_up": True, "walk_right": True, "walk_down": True, "walk_left": True,
+    "eat": True,
+    "sit_down": False, "sit_right": False, "sit_up": False, "sit_left": False,
+    "stand_down": False, "stand_right": False, "stand_up": False, "stand_left": False,
+    "enter": False, "exit": False, "confused": False, "angry": False,
+    "important": False, "love": False, "sleepy": False, "sad": False,
+    "happy": False, "speechless": False
+}
+
+# =============================================================================
 # PET BEHAVIOR SETTINGS
 # =============================================================================
 
 # State duration ranges (in seconds)
 STATE_DURATIONS = {
-    "STAND": (10, 10),   # How long pet stands still
-    "SIT": (10, 30),    # How long pet sits
+    # "IDLE": (10, 10),   # How long pet stays idle
+    # "SIT": (10, 30),    # How long pet sits
+    # "EAT": (5, 5),     # How long pet eats
+    # "WALK": (0, 0)      # Variable based on distance
+    "IDLE": (5, 5),   # How long pet stays idle
+    "SIT": (5, 5),    # How long pet sits
     "EAT": (5, 5),     # How long pet eats
     "WALK": (0, 0)      # Variable based on distance
 }
 
 # State transition probabilities
 STATE_TRANSITIONS = {
-    "STAND": {
-        "STAND": 0.1,   # Probability of staying in STAND
+    "IDLE": {
+        "IDLE": 0.1,    # Probability of staying in IDLE
         "WALK": 0.4,    # Probability of transitioning to WALK
         "SIT": 0.4,     # Probability of transitioning to SIT
         "EAT": 0.1      # Probability of transitioning to EAT
     },
     "SIT": {
-        "STAND": 0.4,   # Probability of transitioning to STAND
+        "IDLE": 0.4,    # Probability of transitioning to IDLE
         "WALK": 0.1,    # Probability of transitioning to WALK
         "SIT": 0.5      # Probability of staying in SIT
     },
+    "WALK": {
+        "IDLE": 0.5,    # Probability of transitioning to IDLE
+        "SIT": 0.3,     # Probability of transitioning to SIT
+        "EAT": 0.1,     # Probability of transitioning to EAT
+        "WALK": 0.1     # Probability of continuing to walk (new destination)
+    },
     "EAT": {
-        "STAND": 0.4,   # Probability of transitioning to STAND
+        "IDLE": 0.4,    # Probability of transitioning to IDLE
         "WALK": 0.3,    # Probability of transitioning to WALK
         "SIT": 0.3      # Probability of transitioning to SIT
     }
@@ -57,8 +113,6 @@ STATE_TRANSITIONS = {
 # Movement speed (pixels per update)
 MOVEMENT_SPEED = 1  # How many pixels pet moves per frame when walking
 
-# Periodic status logging interval (seconds)
-STATUS_LOG_INTERVAL = 5.0
 
 # =============================================================================
 # MOOD SYSTEM SETTINGS
@@ -164,7 +218,6 @@ DEBUG_SETTINGS = {
     "enable_state_logging": False,       # Enable pet state transition logging
     "enable_interaction_logging": False, # Enable interaction logging
     "enable_drag_logging": False,        # Enable drag/drop logging
-    "enable_periodic_status": False,     # Enable periodic status updates
     "enable_animation_logging": False    # Enable animation pause/resume logging
 }
 
@@ -178,7 +231,6 @@ def set_debug_mode(enabled: bool):
     DEBUG_SETTINGS["enable_state_logging"] = enabled
     DEBUG_SETTINGS["enable_interaction_logging"] = enabled
     DEBUG_SETTINGS["enable_drag_logging"] = enabled
-    DEBUG_SETTINGS["enable_periodic_status"] = enabled
     DEBUG_SETTINGS["enable_animation_logging"] = enabled
 
 # =============================================================================

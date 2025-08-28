@@ -120,7 +120,7 @@ class SaveSystem:
                 memory=memory,
                 position=tuple(pet_data.get("position", (100, 100))),
                 direction=Direction(pet_data.get("direction", "down")),
-                current_state=ChickenState(pet_data.get("current_state", "STAND")),
+                current_state=ChickenState(pet_data.get("current_state", "IDLE")),
                 target_position=None,  # Reset target position on load
                 is_dragging=False  # Reset dragging state
             )

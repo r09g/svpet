@@ -11,7 +11,6 @@ from emote_system import EmoteManager
 from chat_system import ChatWidget
 from system_tray import SystemTrayMenu
 from save_system import SaveSystem
-from animation_tester import AnimationTester
 from config import (
     DEFAULT_SCALE_FACTOR, AUTO_SAVE_INTERVAL, get_full_sprite_path, 
     get_emote_sprite_path, get_chatbox_sprite_path, DEBUG_SETTINGS

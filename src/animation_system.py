@@ -79,6 +79,7 @@ class AnimationManager:
         self.animations: Dict[str, Animation] = {}
         self.current_animation: Optional[str] = None
         self.animation_queue: List[str] = []
+        self.held_frame_data: Optional[tuple] = None  # (sprite_sheet_name, frame_index)
         
     def load_sprite_sheet(self, name: str, image_path: str, tile_width: int, tile_height: int):
         """Load a sprite sheet"""
@@ -92,6 +93,9 @@ class AnimationManager:
         """Play an animation"""
         if name not in self.animations:
             return False
+        
+        # Clear held frame when starting animation
+        self.held_frame_data = None
         
         # Don't interrupt current animation unless forced
         if self.current_animation and not force:
@@ -124,6 +128,14 @@ class AnimationManager:
     
     def get_current_pixmap(self, sprite_sheet_name: str) -> Optional[QPixmap]:
         """Get current frame as pixmap"""
+        # Check if we're holding a frame
+        if self.held_frame_data:
+            held_sprite_sheet, held_frame_index = self.held_frame_data
+            if held_sprite_sheet == sprite_sheet_name and held_sprite_sheet in self.sprite_sheets:
+                sprite_sheet = self.sprite_sheets[held_sprite_sheet]
+                return sprite_sheet.get_frame(held_frame_index)
+        
+        # Otherwise get from current animation
         if not self.current_animation or sprite_sheet_name not in self.sprite_sheets:
             return None
         
@@ -137,6 +149,14 @@ class AnimationManager:
         """Hold a specific frame without animation"""
         if sprite_sheet_name not in self.sprite_sheets:
             return None
+        
+        # Stop current animation
+        if self.current_animation:
+            self.animations[self.current_animation].stop()
+            self.current_animation = None
+        
+        # Set held frame data
+        self.held_frame_data = (sprite_sheet_name, frame_index)
         
         sprite_sheet = self.sprite_sheets[sprite_sheet_name]
         return sprite_sheet.get_frame(frame_index)

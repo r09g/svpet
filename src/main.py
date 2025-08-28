@@ -3,11 +3,18 @@
 import sys
 import signal
 import argparse
+import os
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTimer
 from desktop_pet import DesktopPetApp
-from animation_tester import AnimationTester
 from config import set_debug_mode
+
+# Prevent direct execution of this file
+if __name__ == "__main__" and os.path.basename(os.path.dirname(os.path.abspath(__file__))) == "src":
+    print("Error: This script should not be run directly.")
+    print("Please use the main.py file in the project root directory instead.")
+    print("Usage: python main.py")
+    sys.exit(1)
 
 # Global reference to pet app for signal handler
 pet_app_instance = None
@@ -29,8 +36,6 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Desktop Pet Application')
     parser.add_argument('--debug', action='store_true', 
                        help='Enable debug mode')
-    parser.add_argument('--test-animations', action='store_true',
-                       help='Launch animation tester instead of main application')
     return parser.parse_args()
 
 def main():
@@ -45,44 +50,23 @@ def main():
     timer.timeout.connect(lambda: None)  # No-op, just lets Qt process signals
     timer.start(100)  # Check every 100ms
     
-    # Check if user wants to run animation tester
-    if args.test_animations:
-        print("Desktop Pet Animation Tester")
-        print("=" * 40)
-        print("Controls:")
-        print("- Select sprite sheet and animation from dropdowns")
-        print("- Use scale control to resize display")
-        print("- Play/Stop buttons to control animation")
-        print("- Frame-by-frame options available for inspection")
-        print()
-        
-        app.setQuitOnLastWindowClosed(True)  # Close app when tester window closes
-        tester = AnimationTester()
-        tester.show()
-        
-        try:
-            sys.exit(app.exec())
-        except KeyboardInterrupt:
-            print("\nAnimation tester interrupted by user")
-            sys.exit(0)
-    
+    # Set debug mode
+    if args.debug:
+        set_debug_mode(True)
+        print("Debug mode enabled - terminal logging active")
     else:
-        # Normal desktop pet mode
-        if args.debug:
-            set_debug_mode(True)
-            print("Debug mode enabled - terminal logging active")
-        else:
-            set_debug_mode(False)
-        
-        app.setQuitOnLastWindowClosed(False)  # Keep running even when windows are closed
-        global pet_app_instance
-        pet_app_instance = DesktopPetApp()
-        
-        try:
-            sys.exit(app.exec())
-        except KeyboardInterrupt:
-            print("\nApplication interrupted by user")
-            sys.exit(0)
+        set_debug_mode(False)
+    
+    # Normal desktop pet mode
+    app.setQuitOnLastWindowClosed(False)  # Keep running even when windows are closed
+    global pet_app_instance
+    pet_app_instance = DesktopPetApp()
+    
+    try:
+        sys.exit(app.exec())
+    except KeyboardInterrupt:
+        print("\nApplication interrupted by user")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
