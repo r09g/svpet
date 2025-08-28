@@ -2,6 +2,7 @@ import time
 from typing import Dict, List, Optional, Tuple
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import QRect
+from config import DEBUG_SETTINGS
 
 class SpriteSheet:
     def __init__(self, image_path: str, tile_width: int, tile_height: int):
@@ -78,7 +79,7 @@ class AnimationManager:
         self.sprite_sheets: Dict[str, SpriteSheet] = {}
         self.animations: Dict[str, Animation] = {}
         self.current_animation: Optional[str] = None
-        self.held_frame_data: Optional[tuple] = None  # (sprite_sheet_name, frame_index)
+        self.held_frame_data: Optional[Tuple[str, int]] = None
         
     def load_sprite_sheet(self, name: str, image_path: str, tile_width: int, tile_height: int):
         """Load a sprite sheet"""
@@ -88,11 +89,17 @@ class AnimationManager:
         """Create an animation"""
         self.animations[name] = Animation(frames, duration_per_frame, loop)
     
-    def play_animation(self, name: str, force: bool = False):
-        """Play an animation"""
+    def play_animation(self, name: str, *, force: bool=False) -> None:
+        # starting a new animation should clear any hold
+        if not force and self.current_animation == name:
+            return False
+
         if name not in self.animations:
             return False
         
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print(f"[DEBUG] play_animation called: {name}")
+
         # Clear held frame when starting animation
         self.held_frame_data = None
         
@@ -115,37 +122,34 @@ class AnimationManager:
             if not current_anim.loop and current_anim.is_finished():
                 self.current_animation = None
     
-    def get_current_pixmap(self, sprite_sheet_name: str) -> Optional[QPixmap]:
-        """Get current frame as pixmap"""
-        # Check if we're holding a frame
+    def get_current_pixmap(self, sprite_sheet_name) -> Optional[QPixmap]:
+        # 1) honor hold first
         if self.held_frame_data:
-            held_sprite_sheet, held_frame_index = self.held_frame_data
-            if held_sprite_sheet == sprite_sheet_name and held_sprite_sheet in self.sprite_sheets:
-                sprite_sheet = self.sprite_sheets[held_sprite_sheet]
-                return sprite_sheet.get_frame(held_frame_index)
-        
-        # Otherwise get from current animation
+            sheet_name, idx = self.held_frame_data
+            sheet = self.sprite_sheets.get(sheet_name)
+            return sheet.get_frame(idx) if sheet else None
+
+        # 2) otherwise use current animation
         if not self.current_animation or sprite_sheet_name not in self.sprite_sheets:
             return None
-        
+
         animation = self.animations[self.current_animation]
         frame_index = animation.get_current_frame()
         sprite_sheet = self.sprite_sheets[sprite_sheet_name]
-        
+
         return sprite_sheet.get_frame(frame_index)
     
     def hold_frame(self, sprite_sheet_name: str, frame_index: int) -> Optional[QPixmap]:
-        """Hold a specific frame without animation"""
-        if sprite_sheet_name not in self.sprite_sheets:
-            return None
-        
-        # Stop current animation
+        # stop any running animation and set the hold
         if self.current_animation:
             self.animations[self.current_animation].stop()
             self.current_animation = None
-        
-        # Set held frame data
+
         self.held_frame_data = (sprite_sheet_name, frame_index)
+        sheet = self.sprite_sheets.get(sprite_sheet_name)
+
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print(f"[DEBUG] hold_frame called: {sprite_sheet_name} {frame_index}")
         
-        sprite_sheet = self.sprite_sheets[sprite_sheet_name]
-        return sprite_sheet.get_frame(frame_index)
+        return sheet.get_frame(frame_index) if sheet else None
+    

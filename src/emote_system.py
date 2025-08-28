@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QLabel
 from PySide6.QtCore import Qt, QTimer, QPoint
 from PySide6.QtGui import QPixmap, QPainter
 from animation_system import AnimationManager
-from config import ANIMATION_DURATIONS, EMOTE_ANIMATIONS, ANIMATION_LOOPS, MOOD_EMOTES
+from config import ANIMATION_DURATIONS, EMOTE_ANIMATIONS, ANIMATION_LOOPS, MOOD_EMOTES, DEBUG_SETTINGS
 import random
 
 class EmoteWidget(QWidget):
@@ -124,12 +124,14 @@ class EmoteWidget(QWidget):
     def play_next_in_sequence(self):
         """Play next animation in sequence"""
         if self.sequence_index >= len(self.current_emote_sequence):
-            print(f"  Emote sequence complete")
+            if DEBUG_SETTINGS["enable_state_logging"]:
+                print(f"[DEBUG] Emote sequence complete")
             self.hide_emote()
             return
         
         anim_name, is_loop = self.current_emote_sequence[self.sequence_index]
-        print(f"  Playing emote animation: {anim_name} (step {self.sequence_index + 1}/{len(self.current_emote_sequence)})")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            print(f"[DEBUG] Playing emote animation: {anim_name} (step {self.sequence_index + 1}/{len(self.current_emote_sequence)})")
         
         # Modify animation to not loop for this sequence
         if anim_name in self.animation_manager.animations:
@@ -139,7 +141,8 @@ class EmoteWidget(QWidget):
         if success:
             self.sequence_index += 1
         else:
-            print(f"  Failed to play animation: {anim_name}")
+            if DEBUG_SETTINGS["enable_state_logging"]:
+                print(f"[DEBUG] Failed to play animation: {anim_name}")
             self.hide_emote()
     
     def update_emote(self):
@@ -154,7 +157,8 @@ class EmoteWidget(QWidget):
         
         if was_playing and not is_playing and self.is_showing:
             # Animation just finished, play next in sequence immediately
-            print(f"  Animation finished, playing next in sequence")
+            if DEBUG_SETTINGS["enable_state_logging"]:
+                print(f"[DEBUG] Animation finished, playing next in sequence")
             self.play_next_in_sequence()  # No delay for seamless transitions
         
         # Update position to follow parent

@@ -122,8 +122,6 @@ class ChickenStateMachine:
         
         # Use the pre-calculated target duration for this state
         should_transition = elapsed >= self.pet.state_target_duration
-        if DEBUG_SETTINGS["enable_state_logging"] and should_transition:
-            print(f"  DEBUG: State transition check - elapsed: {elapsed:.1f}s, target: {self.pet.state_target_duration:.1f}s")
         return should_transition
     
     def get_next_state(self) -> ChickenState:
@@ -143,16 +141,11 @@ class ChickenStateMachine:
         self.pet.current_state = new_state
         self.pet.state_start_time = time.time()
         
-        # Debug logging
-        if DEBUG_SETTINGS["enable_state_logging"]:
-            print(f"  DEBUG: Actually transitioning from {old_state.value} to {new_state.value}")
-        
         # Calculate target duration for this state (once when entering)
         duration_range = self.state_durations.get(new_state, (5, 15))
         self.pet.state_target_duration = random.uniform(duration_range[0], duration_range[1])
         
-        if DEBUG_SETTINGS["enable_state_logging"]:
-            print(f"{self.pet.memory.name}: {old_state.value} -> {new_state.value}")
+        print(f"{self.pet.memory.name}: {old_state.value} -> {new_state.value}")
         
         # Log state-specific information
         self._log_state_details(new_state)
@@ -162,8 +155,6 @@ class ChickenStateMachine:
             self.pet.target_position = self.get_random_screen_position()
             self.pet.walking_path = self.calculate_manhattan_path(self.pet.position, self.pet.target_position)
             self.pet.path_index = 0
-            print(f"  Target: ({self.pet.target_position[0]}, {self.pet.target_position[1]})")
-            print(f"  Path steps: {len(self.pet.walking_path)}")
             
             # Set initial walking direction and animation
             if len(self.pet.walking_path) > 0:
@@ -180,7 +171,6 @@ class ChickenStateMachine:
                 # Start walking animation in the correct direction
                 walk_anim = f"walk_{self.pet.direction.value}"
                 self.animation_manager.play_animation(walk_anim, force=True)
-                print(f"  Starting walk facing: {self.pet.direction.value}")
         
         # Handle SIT state transitions (Mealy state machine)
         self._handle_sit_transitions(old_state, new_state)
@@ -199,7 +189,7 @@ class ChickenStateMachine:
         
         # Check if we've reached the end of the path
         if self.pet.path_index >= len(self.pet.walking_path):
-            print(f"  {self.pet.memory.name} reached target")
+            print(f"[DEBUG] {self.pet.memory.name} reached target")
             self.pet.target_position = None
             self.pet.walking_path = []
             self.pet.path_index = 0
@@ -234,7 +224,6 @@ class ChickenStateMachine:
                     self.pet.direction = new_direction
                     walk_anim = f"walk_{self.pet.direction.value}"
                     self.animation_manager.play_animation(walk_anim, force=True)
-                    print(f"  Turn: now facing {self.pet.direction.value}")
             
             return
         
@@ -280,25 +269,35 @@ class ChickenStateMachine:
     def _handle_idle_animation(self, old_state: ChickenState):
         """Handle IDLE state animation based on previous state - simplified"""
         if old_state == ChickenState.WALK or old_state == ChickenState.SIT:
-            # If previous was walk, hold first frame of walk animation in current direction
+            # If previous was walk or sit, hold first frame of animation in current direction
             walk_anim_name = f"walk_{self.pet.direction.value}"
             if walk_anim_name in self.animation_manager.animations:
                 first_frame = self.animation_manager.animations[walk_anim_name].frames[0]
+                self.animation_manager.hold_frame("chicken", first_frame)
+        elif old_state == ChickenState.IDLE:
+            # If previous was idle, randomly choose facing direction
+            new_direction = random.choice([Direction.DOWN, Direction.LEFT, Direction.RIGHT, Direction.UP])
+            new_idle_hold = f"walk_{new_direction.value}"
+            self.pet.direction = new_direction
+            anim = self.animation_manager.animations[new_idle_hold]
+            first_frame = anim.frames[-1]
+            self.animation_manager.hold_frame("chicken", first_frame)
         else:
             # Default case: hold frame 0
             self.animation_manager.hold_frame("chicken", 0)
     
     def _log_state_details(self, state: ChickenState):
         """Log detailed information about current state"""
-        current_pos = self.pet.position
-        
-        if state == ChickenState.WALK and self.pet.target_position:
-            distance = abs(self.pet.target_position[0] - current_pos[0]) + abs(self.pet.target_position[1] - current_pos[1])
-            print(f"  Distance: {distance}px")
-        elif state in [ChickenState.IDLE, ChickenState.SIT, ChickenState.EAT]:
-            print(f"  Target Duration: {self.pet.state_target_duration:.1f}s")
-        
-        print(f"  Position: ({current_pos[0]}, {current_pos[1]}), Facing: {self.pet.direction.value}, Mood: {self.pet.memory.mood}")
+        if DEBUG_SETTINGS["enable_state_logging"]:
+            current_pos = self.pet.position
+            
+            if state == ChickenState.WALK and self.pet.target_position:
+                distance = abs(self.pet.target_position[0] - current_pos[0]) + abs(self.pet.target_position[1] - current_pos[1])
+                print(f"[DEBUG] Distance: {distance}px")
+            elif state in [ChickenState.IDLE, ChickenState.SIT, ChickenState.EAT]:
+                print(f"[DEBUG] Target Duration: {self.pet.state_target_duration:.1f}s")
+            
+            print(f"[DEBUG] Position: ({current_pos[0]}, {current_pos[1]}), Facing: {self.pet.direction.value}, Mood: {self.pet.memory.mood}")
 
     def update(self):
         """Update state machine"""
@@ -323,7 +322,6 @@ class ChickenStateMachine:
         if new_state == ChickenState.SIT and old_state != ChickenState.SIT:
             # Play sit animation once when entering SIT state
             sit_anim = f"sit_{self.pet.direction.value}"
-            print(f"  Transitioning to SIT: playing {sit_anim}")
             self.animation_manager.play_animation(sit_anim, force=True)
             
             # Mark that we need to hold the last frame after animation completes
@@ -331,14 +329,19 @@ class ChickenStateMachine:
             
         # Case 2: Already IN SIT state, staying in SIT (SIT -> SIT)
         elif new_state == ChickenState.SIT and old_state == ChickenState.SIT:
-            # Do nothing - continue holding the sit pose
-            print(f"  Staying in SIT state - no animation change")
-            
+            # Random facing direction 
+            new_direction = random.choice([Direction.DOWN, Direction.LEFT, Direction.RIGHT, Direction.UP])
+            new_sit_hold = f"sit_{new_direction.value}"
+            self.pet.direction = new_direction
+            anim = self.animation_manager.animations[new_sit_hold]
+            last_frame = anim.frames[-1]
+            self.animation_manager.hold_frame("chicken", last_frame)
+
+
         # Case 3: Transitioning FROM SIT state to non-SIT states  
         elif old_state == ChickenState.SIT and new_state != ChickenState.SIT:
             # Play stand animation once when leaving SIT state
             stand_anim = f"stand_{self.pet.direction.value}"
-            print(f"  Transitioning from SIT: playing {stand_anim}")
             self.animation_manager.play_animation(stand_anim, force=True)
             
             # Mark that we need to transition to the new state after stand animation
@@ -357,7 +360,8 @@ class ChickenStateMachine:
                     last_frame = anim.frames[-1]
                     self.animation_manager.hold_frame("chicken", last_frame)
                     self.pet.sit_animation_playing = False
-                    print(f"  Sit animation finished - holding last frame ({last_frame})")
+                    if DEBUG_SETTINGS["enable_state_logging"]:
+                        print(f"[DEBUG] Sit animation finished - holding last frame ({last_frame})")
         
         # Check if stand animation just finished (transitioning out of SIT)
         if self.pet.stand_animation_playing:

@@ -102,20 +102,11 @@ class PetWidget(QWidget):
         # Get current frame based on state
         current_pixmap = None
         
-        if self.animation_manager.current_animation:
+        if self.animation_manager.current_animation or self.animation_manager.held_frame_data:
             current_pixmap = self.animation_manager.get_current_pixmap("chicken")
         else:
-            # Default frame when no animation is playing
-            if self.pet.current_state.name == "WALK":
-                # Use first frame of walk animation in current direction
-                walk_anim = f"walk_{self.pet.direction.value}"
-                if walk_anim in self.animation_manager.animations:
-                    frame_index = self.animation_manager.animations[walk_anim].frames[0]
-                    current_pixmap = self.animation_manager.hold_frame("chicken", frame_index)
-                else:
-                    current_pixmap = self.animation_manager.hold_frame("chicken", 0)
-            else:
-                current_pixmap = self.animation_manager.hold_frame("chicken", 0)
+            # Default frame when no animation is playing or frame held
+            current_pixmap = self.animation_manager.hold_frame("chicken", 0)
         
         if current_pixmap:
             # Scale the pixmap
