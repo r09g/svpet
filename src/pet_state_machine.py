@@ -164,6 +164,23 @@ class ChickenStateMachine:
             self.pet.path_index = 0
             print(f"  Target: ({self.pet.target_position[0]}, {self.pet.target_position[1]})")
             print(f"  Path steps: {len(self.pet.walking_path)}")
+            
+            # Set initial walking direction and animation
+            if len(self.pet.walking_path) > 0:
+                first_target = self.pet.walking_path[0]
+                dx = first_target[0] - self.pet.position[0]
+                dy = first_target[1] - self.pet.position[1]
+                
+                # Set direction based on first movement
+                if abs(dx) > abs(dy) and dx != 0:
+                    self.pet.direction = Direction.RIGHT if dx > 0 else Direction.LEFT
+                elif dy != 0:
+                    self.pet.direction = Direction.DOWN if dy > 0 else Direction.UP
+                
+                # Start walking animation in the correct direction
+                walk_anim = f"walk_{self.pet.direction.value}"
+                self.animation_manager.play_animation(walk_anim, force=True)
+                print(f"  Starting walk facing: {self.pet.direction.value}")
         elif new_state == ChickenState.SIT:
             # Simple SIT state - just play sit animation and hold last frame
             sit_anim = f"sit_{self.pet.direction.value}"
@@ -216,6 +233,28 @@ class ChickenStateMachine:
             # Move to exact position and advance to next path step
             self.pet.position = next_pos
             self.pet.path_index += 1
+            
+            # Update direction for the next path segment immediately
+            if self.pet.path_index < len(self.pet.walking_path):
+                next_target = self.pet.walking_path[self.pet.path_index]
+                dx = next_target[0] - next_pos[0]
+                dy = next_target[1] - next_pos[1]
+                
+                # Set direction based on next movement
+                if abs(dx) > abs(dy) and dx != 0:
+                    new_direction = Direction.RIGHT if dx > 0 else Direction.LEFT
+                elif dy != 0:
+                    new_direction = Direction.DOWN if dy > 0 else Direction.UP
+                else:
+                    new_direction = self.pet.direction  # Keep current if no movement needed
+                
+                # Update direction and animation if changed
+                if new_direction != self.pet.direction:
+                    self.pet.direction = new_direction
+                    walk_anim = f"walk_{self.pet.direction.value}"
+                    self.animation_manager.play_animation(walk_anim, force=True)
+                    print(f"  Turn: now facing {self.pet.direction.value}")
+            
             return
         
         # Move towards next position (single axis movement)
