@@ -4,18 +4,18 @@
       "name": "buno",
       "pet_type": "chicken",
       "creation_time": 1756311510.90741,
-      "pet_count": 127,
-      "total_living_time": 54042.232411623,
+      "pet_count": 131,
+      "total_living_time": 81625.5927555561,
       "chat_summary": "",
       "mood": 100,
       "last_mood_reset": 0.0
     },
     "position": [
-      826,
-      324
+      681,
+      503
     ],
-    "direction": "down",
-    "current_state": "WALK",
-    "last_save_time": 1756371036.8809211
+    "direction": "up",
+    "current_state": "IDLE",
+    "last_save_time": 1756398894.763985
   }
 }

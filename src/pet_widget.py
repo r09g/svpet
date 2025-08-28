@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QLabel
 from PySide6.QtCore import Qt, QTimer, QPoint, Signal
-from PySide6.QtGui import QPixmap, QPainter, QMouseEvent
+from PySide6.QtGui import QPixmap, QPainter, QMouseEvent, QImage, QBitmap, QRegion
 from pet_data import Pet
 from animation_system import AnimationManager
 from pet_state_machine import PetStateMachine
@@ -116,8 +116,14 @@ class PetWidget(QWidget):
                 Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.FastTransformation
             )
-            painter.drawPixmap(0, 0, scaled_pixmap)
+            
+            # SHAPE THE WINDOW TO THE SPRITE ALPHA - kills the halo
+            img = scaled_pixmap.toImage()
+            mask = QRegion(QBitmap.fromImage(img.createAlphaMask()))
+            self.setMask(mask)
         
+            painter.drawPixmap(0, 0, scaled_pixmap)
+            
         painter.end()
     
     def mousePressEvent(self, event: QMouseEvent):

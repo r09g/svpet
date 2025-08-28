@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QLabel
 from PySide6.QtCore import Qt, QTimer, QPoint
-from PySide6.QtGui import QPixmap, QPainter
+from PySide6.QtGui import QPixmap, QPainter, QImage, QBitmap, QRegion
 from animation_system import AnimationManager
 from config import ANIMATION_DURATIONS, EMOTE_ANIMATIONS, ANIMATION_LOOPS, MOOD_EMOTES, DEBUG_SETTINGS
 import random
@@ -213,6 +213,12 @@ class EmoteWidget(QWidget):
             Qt.AspectRatioMode.KeepAspectRatio, 
             Qt.TransformationMode.FastTransformation
         )
+        
+        # SHAPE THE WINDOW TO THE SPRITE ALPHA - kills the halo
+        img = scaled_pixmap.toImage()
+        mask = QRegion(QBitmap.fromImage(img.createAlphaMask()))
+        self.setMask(mask)
+        
         painter.drawPixmap(0, 0, scaled_pixmap)
         painter.end()
 
