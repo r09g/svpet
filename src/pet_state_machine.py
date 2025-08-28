@@ -6,8 +6,9 @@ from pet_data import Pet, ChickenState, Direction
 from animation_system import AnimationManager
 from config import (
     ANIMATION_DURATIONS, ANIMAL_ANIMATIONS, ANIMATION_LOOPS, 
-    STATE_DURATIONS, STATE_TRANSITIONS, MOVEMENT_SPEED, DEBUG_SETTINGS
+    STATE_DURATIONS, STATE_TRANSITIONS, DEBUG_SETTINGS
 )
+import config
 
 class ChickenStateMachine:
     def __init__(self, pet: Pet, animation_manager: AnimationManager):
@@ -189,7 +190,8 @@ class ChickenStateMachine:
         
         # Check if we've reached the end of the path
         if self.pet.path_index >= len(self.pet.walking_path):
-            print(f"[DEBUG] {self.pet.memory.name} reached target")
+            if DEBUG_SETTINGS["enable_state_logging"]:
+                print(f"[DEBUG] {self.pet.memory.name} reached target")
             self.pet.target_position = None
             self.pet.walking_path = []
             self.pet.path_index = 0
@@ -200,7 +202,7 @@ class ChickenStateMachine:
         next_pos = self.pet.walking_path[self.pet.path_index]
         
         # Check if we've reached the current path step
-        if abs(next_pos[0] - current_pos[0]) <= MOVEMENT_SPEED and abs(next_pos[1] - current_pos[1]) <= MOVEMENT_SPEED:
+        if abs(next_pos[0] - current_pos[0]) <= config.MOVEMENT_SPEED and abs(next_pos[1] - current_pos[1]) <= config.MOVEMENT_SPEED:
             # Move to exact position and advance to next path step
             self.pet.position = next_pos
             self.pet.path_index += 1
@@ -234,13 +236,13 @@ class ChickenStateMachine:
         # Move only in one direction (Manhattan movement) and set direction accordingly
         if abs(dx) > abs(dy) and dx != 0:
             # Move horizontally
-            move_x = MOVEMENT_SPEED if dx > 0 else -MOVEMENT_SPEED
+            move_x = config.MOVEMENT_SPEED if dx > 0 else -config.MOVEMENT_SPEED
             move_y = 0
             new_direction = Direction.RIGHT if dx > 0 else Direction.LEFT
         elif dy != 0:
             # Move vertically
             move_x = 0
-            move_y = MOVEMENT_SPEED if dy > 0 else -MOVEMENT_SPEED
+            move_y = config.MOVEMENT_SPEED if dy > 0 else -config.MOVEMENT_SPEED
             new_direction = Direction.DOWN if dy > 0 else Direction.UP
         else:
             # No movement needed (shouldn't happen but safety check)
@@ -280,7 +282,7 @@ class ChickenStateMachine:
             new_idle_hold = f"walk_{new_direction.value}"
             self.pet.direction = new_direction
             anim = self.animation_manager.animations[new_idle_hold]
-            first_frame = anim.frames[-1]
+            first_frame = anim.frames[0]
             self.animation_manager.hold_frame("chicken", first_frame)
         else:
             # Default case: hold frame 0

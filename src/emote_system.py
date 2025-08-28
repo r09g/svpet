@@ -6,13 +6,13 @@ from config import ANIMATION_DURATIONS, EMOTE_ANIMATIONS, ANIMATION_LOOPS, MOOD_
 import random
 
 class EmoteWidget(QWidget):
-    def __init__(self, emote_sprite_path: str, parent_widget: QWidget):
+    def __init__(self, emote_sprite_path: str, parent_widget: QWidget, scale_factor: float = 4.0):
         super().__init__()
         
         self.parent_widget = parent_widget
         self.emote_sprite_path = emote_sprite_path
-        self.scale_factor = 4  # 16x16 -> 64x64
-        self.emote_size = 16 * self.scale_factor
+        self.scale_factor = scale_factor
+        self.emote_size = int(16 * self.scale_factor)
         
         # Animation system for emotes
         self.animation_manager = AnimationManager()
@@ -181,6 +181,12 @@ class EmoteWidget(QWidget):
         # Clear cached pixmap
         self.last_valid_pixmap = None
     
+    def update_scale_factor(self, new_scale_factor: float):
+        """Update the scale factor and resize the emote widget"""
+        self.scale_factor = new_scale_factor
+        self.emote_size = int(16 * self.scale_factor)
+        self.setFixedSize(self.emote_size, self.emote_size)
+    
     def paintEvent(self, event):
         """Paint the emote sprite"""
         if not self.is_showing:
@@ -214,9 +220,9 @@ class EmoteManager:
     def __init__(self):
         self.emote_widgets = {}  # pet_id -> EmoteWidget
     
-    def create_emote_widget(self, pet_id: str, emote_sprite_path: str, parent_widget: QWidget):
+    def create_emote_widget(self, pet_id: str, emote_sprite_path: str, parent_widget: QWidget, scale_factor: float = 4.0):
         """Create emote widget for a pet"""
-        emote_widget = EmoteWidget(emote_sprite_path, parent_widget)
+        emote_widget = EmoteWidget(emote_sprite_path, parent_widget, scale_factor)
         self.emote_widgets[pet_id] = emote_widget
         return emote_widget
     
@@ -240,3 +246,8 @@ class EmoteManager:
             return random.choice(MOOD_EMOTES["low"])
         else:
             return random.choice(MOOD_EMOTES["medium"])
+    
+    def update_all_scales(self, new_scale_factor: float):
+        """Update scale factor for all emote widgets"""
+        for emote_widget in self.emote_widgets.values():
+            emote_widget.update_scale_factor(new_scale_factor)

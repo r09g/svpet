@@ -148,7 +148,7 @@ class DesktopPetApp(QObject):
         self.pet_widgets[pet_id] = pet_widget
         
         # Create emote widget for this pet
-        emote_widget = self.emote_manager.create_emote_widget(pet_id, self.emote_sprite_path, pet_widget)
+        emote_widget = self.emote_manager.create_emote_widget(pet_id, self.emote_sprite_path, pet_widget, self.scale_factor)
         
         if DEBUG_SETTINGS["enable_state_logging"]:
             print(f"[DEBUG] Created {pet.memory.name} the {pet.memory.pet_type.value}")
@@ -292,11 +292,14 @@ class DesktopPetApp(QObject):
             print(f"Zoomed out from {old_scale}x to {self.scale_factor}x")
     
     def apply_zoom_to_pets(self):
-        """Apply current zoom factor to all pet widgets"""
+        """Apply current zoom factor to all pet widgets and emotes"""
         new_size = int(16 * self.scale_factor)
         for pet_widget in self.pet_widgets.values():
             pet_widget.pet_size = new_size
             pet_widget.setFixedSize(new_size, new_size)
+        
+        # Update emote scales to match
+        self.emote_manager.update_all_scales(self.scale_factor)
     
     def connect_llm_model(self, model_path: str):
         """Connect LLM model"""

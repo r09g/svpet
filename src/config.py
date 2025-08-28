@@ -135,7 +135,7 @@ STATE_TRANSITIONS = {
 }
 
 # Movement speed (pixels per update)
-MOVEMENT_SPEED = 1  # How many pixels pet moves per frame when walking
+MOVEMENT_SPEED = 10  # How many pixels pet moves per frame when walking
 
 
 # =============================================================================
