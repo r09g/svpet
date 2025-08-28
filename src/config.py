@@ -135,7 +135,7 @@ STATE_TRANSITIONS = {
 }
 
 # Movement speed (pixels per update)
-MOVEMENT_SPEED = 10  # How many pixels pet moves per frame when walking
+MOVEMENT_SPEED = 1  # How many pixels pet moves per frame when walking
 
 
 # =============================================================================
@@ -177,8 +177,8 @@ WINDOW_UPDATE_FPS = 20  # Main window update frequency
 # SAVE SYSTEM SETTINGS
 # =============================================================================
 
-# Auto-save interval (milliseconds)
-AUTO_SAVE_INTERVAL = 60000  # Save every 60 seconds
+# Auto-save interval (milliseconds)  
+AUTO_SAVE_INTERVAL = 60000  # Save every 60 seconds (1 minute)
 
 # Save directory
 SAVE_DIRECTORY = "pet_saves"

@@ -4,7 +4,7 @@ from PySide6.QtGui import QPixmap, QPainter, QMouseEvent
 from pet_data import Pet
 from animation_system import AnimationManager
 from pet_state_machine import PetStateMachine
-from Config import DEBUG_SETTINGS
+from config import DEBUG_SETTINGS
 import random
 
 class PetWidget(QWidget):
