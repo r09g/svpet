@@ -35,6 +35,7 @@ class EmoteWidget(QWidget):
         self.is_showing = False
         self.current_emote_sequence = []
         self.sequence_index = 0
+        self.last_valid_pixmap = None  # Cache last valid frame to prevent flashing
     
     def _init_emote_animations(self):
         """Initialize emote animations from config"""
@@ -123,27 +124,38 @@ class EmoteWidget(QWidget):
     def play_next_in_sequence(self):
         """Play next animation in sequence"""
         if self.sequence_index >= len(self.current_emote_sequence):
+            print(f"  Emote sequence complete")
             self.hide_emote()
             return
         
         anim_name, is_loop = self.current_emote_sequence[self.sequence_index]
+        print(f"  Playing emote animation: {anim_name} (step {self.sequence_index + 1}/{len(self.current_emote_sequence)})")
         
         # Modify animation to not loop for this sequence
         if anim_name in self.animation_manager.animations:
             self.animation_manager.animations[anim_name].loop = is_loop
         
-        self.animation_manager.play_animation(anim_name, force=True)
-        self.sequence_index += 1
+        success = self.animation_manager.play_animation(anim_name, force=True)
+        if success:
+            self.sequence_index += 1
+        else:
+            print(f"  Failed to play animation: {anim_name}")
+            self.hide_emote()
     
     def update_emote(self):
         """Update emote animation"""
+        # Store current animation state before update
+        was_playing = self.animation_manager.current_animation is not None
+        
         self.animation_manager.update()
         
-        # Check if current animation finished and play next in sequence
-        if self.animation_manager.current_animation:
-            current_anim = self.animation_manager.animations[self.animation_manager.current_animation]
-            if not current_anim.loop and current_anim.is_finished():
-                QTimer.singleShot(100, self.play_next_in_sequence)  # Small delay between animations
+        # Check if animation just finished (was playing, now not playing)
+        is_playing = self.animation_manager.current_animation is not None
+        
+        if was_playing and not is_playing and self.is_showing:
+            # Animation just finished, play next in sequence immediately
+            print(f"  Animation finished, playing next in sequence")
+            self.play_next_in_sequence()  # No delay for seamless transitions
         
         # Update position to follow parent
         self.update_position()
@@ -161,6 +173,9 @@ class EmoteWidget(QWidget):
         if self.animation_manager.current_animation:
             self.animation_manager.animations[self.animation_manager.current_animation].stop()
         self.animation_manager.current_animation = None
+        
+        # Clear cached pixmap
+        self.last_valid_pixmap = None
     
     def paintEvent(self, event):
         """Paint the emote sprite"""
@@ -173,15 +188,22 @@ class EmoteWidget(QWidget):
         # Get current frame
         current_pixmap = self.animation_manager.get_current_pixmap("emote")
         
+        # Use current pixmap if available, otherwise use last valid pixmap to prevent flashing
         if current_pixmap:
-            # Scale the pixmap
-            scaled_pixmap = current_pixmap.scaled(
-                self.emote_size, self.emote_size,
-                Qt.AspectRatioMode.KeepAspectRatio, 
-                Qt.TransformationMode.FastTransformation
-            )
-            painter.drawPixmap(0, 0, scaled_pixmap)
+            self.last_valid_pixmap = current_pixmap
+            pixmap_to_use = current_pixmap
+        elif self.last_valid_pixmap:
+            pixmap_to_use = self.last_valid_pixmap
+        else:
+            return  # No pixmap available
         
+        # Scale and draw the pixmap
+        scaled_pixmap = pixmap_to_use.scaled(
+            self.emote_size, self.emote_size,
+            Qt.AspectRatioMode.KeepAspectRatio, 
+            Qt.TransformationMode.FastTransformation
+        )
+        painter.drawPixmap(0, 0, scaled_pixmap)
         painter.end()
 
 class EmoteManager:
